@@ -1,0 +1,5 @@
+# Local project documentation is maintained outside the public repository.
+docs/
+
+# macOS metadata
+.DS_Store
