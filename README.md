@@ -2,126 +2,77 @@
 
 # Pantry Index
 
-### A searchable nutrition reference for the ingredients people actually keep at home.
+I kept searching for the same nutrition labels, so I made a place to keep them.
 
-Pantry Index turns the back-of-package lookup into a fast, readable web experience. Search a plain ingredient, choose a practical kitchen measure, and see a nutrition label that recalculates to that exact amount.
+[![Static site](https://img.shields.io/badge/site-static-244c3a?style=flat-square)](https://kaushik-3009.github.io/nutrition-rolodex/)
+[![Vanilla JavaScript](https://img.shields.io/badge/frontend-vanilla%20JavaScript-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://github.com/kaushik-3009/nutrition-rolodex)
+[![USDA FoodData Central](https://img.shields.io/badge/data-USDA%20FoodData%20Central-6b8f71?style=flat-square)](https://fdc.nal.usda.gov/)
+[![Catalog](https://img.shields.io/badge/catalog-108%20records-e56b4d?style=flat-square)](https://kaushik-3009.github.io/nutrition-rolodex/)
 
-[Open the catalog](https://kaushik-3009.github.io/nutrition-rolodex/) · [View the repository](https://github.com/kaushik-3009/nutrition-rolodex)
+[Open the catalog](https://kaushik-3009.github.io/nutrition-rolodex/) · [Read the story](https://kaushik-3009.github.io/nutrition-rolodex/about.html)
 
 ![Pantry Index landing page](public/landing-page.png)
 
 </div>
 
-## Why this exists
+## The reason I built it
 
-Nutrition information is easy to find in isolation and surprisingly difficult to compare in the moment. A search for white rice, lentils, spinach, or a can of beans often leads to a product page, an image of a label, or a serving size that is hard to translate into what someone is holding in a measuring cup.
+I was regularly searching for things like “Great Value white rice nutrition” and then repeating the same process for oats, lentils, beans, vegetables, and milk. The information was usually somewhere, but the serving sizes were inconsistent and the label was often buried in a product page or a photo.
 
-Pantry Index is designed around that everyday lookup:
+Pantry Index is my attempt to make that lookup less annoying. It gives each ingredient one readable record, starts with a measure that makes sense in a kitchen, and keeps the gram equivalent beside it. The site is public because this was not only my problem.
 
-- Search by ingredient, alias, food group, or state.
-- Start with a sensible household measure such as `1/2 cup`, `1/4 cup`, `1 tbsp`, `1 egg`, or `1 slice`.
-- Keep the gram equivalent visible beside the household measure.
-- Scale calories, macronutrients, vitamins, minerals, and Daily Values to the selected amount.
-- Keep raw, dry, canned, and frozen records separate so similar foods are not quietly mixed together.
+## What the site does
 
-## Product highlights
+Search the catalog by ingredient, alias, food group, or state. Select a record beside the results, adjust the amount, and read a Nutrition Facts style label for that exact quantity. A user can switch between grams, cups, tablespoons, and countable measures such as an egg or a slice.
 
-| Capability | What it does |
-| --- | --- |
-| Inline catalog browsing | Select a food beside the results instead of jumping to a separate detail page. |
-| Live search | Filter the catalog while typing by name, alias, group, or state. |
-| Food-specific measures | Default amounts reflect how ingredients are normally measured in a kitchen. |
-| Flexible serving controls | Adjust grams, cups, tablespoons, or countable units such as eggs and slices. |
-| Nutrition Facts label | Reproduces the familiar back-label hierarchy with readable nutrient rows and `% Daily Value`. |
-| Pagination | Keeps long groups usable instead of rendering an unbounded wall of cards. |
-| Source-aware records | Each entry retains its source and record identifier for traceability. |
-| Static delivery | No account, database, build server, or runtime API is required to browse the catalog. |
+The catalog keeps raw, dry, canned, and frozen foods separate. That matters for foods such as beans, peas, broccoli, and spinach, where the state changes both the serving convention and the nutrition values.
 
-## Current catalog
+## The serving-size decision
 
-The catalog currently contains 108 generated generic records across:
+Grams are the calculation basis, but they are not always the best starting point for a person standing in a kitchen. The default for rolled oats is `1/2 cup`; dry lentils and chickpeas start at `1/4 cup`; oils use tablespoons; eggs and slices can use a count measure. Each household amount shows its gram equivalent, and the label recalculates when the amount changes.
 
-- Grains
-- Indian pulses, lentils, dals, and beans
-- Vegetables and fruit
-- Proteins and seafood
-- Dairy, eggs, milk, and milk alternatives
-- Nuts, seeds, and oils
-- Canned and frozen ingredients
+The important part is that the interface does not store a separate nutrition record for every serving size. Each record stores nutrients per 100 grams. The browser converts the chosen measure to grams and scales the nutrients from that one canonical basis.
 
-The current data boundary is deliberate: records are raw, dry, canned, or frozen. Cooked foods and multi-ingredient prepared foods are outside the current catalog model. Walmart and Great Value product-specific records are planned as a separate verified ingestion stage, not silently substituted with generic data.
+## A small catalog with clear boundaries
 
-## How it works
+The current release has 108 generic records covering grains, Indian pulses and dals, vegetables, fruit, proteins, seafood, dairy, eggs, milk, milk alternatives, nuts, seeds, oils, canned foods, and frozen foods.
+
+It does not include cooked foods or multi-ingredient prepared foods. Walmart and Great Value products are a separate data problem because a generic USDA ingredient should not be presented as an exact package label. Those branded records will be added only when the package data can be verified.
+
+## How the data moves
 
 ```mermaid
 flowchart LR
-    A[USDA FoodData Central source] --> B[Catalog generator]
+    A[USDA FoodData Central] --> B[Catalog generator]
     B --> C[data/catalog-data.js]
     C --> D[Search and filters]
-    C --> E[Serving controls]
-    E --> F[Scale nutrients to selected grams]
-    F --> G[Readable Nutrition Facts label]
+    C --> E[Measure conversion]
+    E --> F[Nutrient scaling]
+    F --> G[Nutrition Facts label]
 ```
 
-The data pipeline normalizes nutrients to a per-100-gram basis. The browser converts a selected household measure into grams, scales every nutrient from that canonical basis, and calculates Daily Values only where a reference value exists. This keeps the measurement UI flexible without duplicating nutrition records for every possible serving size.
+The generator keeps the source name and record ID with each entry. The browser uses the selected gram amount to scale calories, macronutrients, vitamins, minerals, and Daily Values where a reference value is available. Missing Daily Values remain missing instead of being guessed.
 
-## Technical approach
+## Built with
 
-- **Frontend:** semantic HTML, modern CSS, and vanilla JavaScript
-- **Data:** generated JavaScript catalog with USDA FoodData Central provenance
-- **Runtime:** dependency-free static site
-- **Search:** client-side keyword matching across names, aliases, groups, states, and source labels
-- **Serving math:** gram-canonical nutrient scaling with household and count-measure conversions
-- **Deployment:** GitHub Pages through GitHub Actions
-- **Accessibility:** semantic controls, visible labels, keyboard-friendly interactions, and responsive layouts
-
-This is intentionally a small static application. The interesting engineering work is in the catalog shape, measurement model, nutrient scaling, and making a dense label readable without losing the speed of a simple lookup tool.
-
-## Run locally
-
-The site does not require a package install. Serve the repository from its root so the relative catalog and image paths resolve correctly:
-
-```bash
-python3 -m http.server 4173
-```
-
-Then open <http://localhost:4173>.
-
-Opening `index.html` directly also works for the browser prototype, but a local static server is the better way to mirror deployment behavior.
-
-## Verify the catalog
-
-The generated catalog can be rebuilt from the ingestion script when the source cache is available:
-
-```bash
-FDC_LOCAL_DIR=/path/to/fdc-cache node scripts/fetch-catalog.mjs
-node --check app.js
-node --check data/catalog-data.js
-```
-
-The catalog is checked for duplicate IDs, core nutrient coverage, requested groups, and valid pagination. Product-specific Walmart data is not added until the source label and record can be verified.
-
-## Repository map
+The app is deliberately dependency-free: semantic HTML, CSS, and vanilla JavaScript on the frontend, with a generated JavaScript data file produced by the ingestion script. GitHub Actions is set up to publish the static files to GitHub Pages.
 
 ```text
-.
-├── index.html                  Catalog shell and Nutrition Facts markup
-├── about.html                  Project story and scope
-├── app.js                      Search, filters, serving math, and rendering
-├── styles.css                  Design system and responsive layout
-├── data/catalog-data.js        Generated catalog records
-├── public/landing-page.png     Product screenshot used in this README
-└── scripts/fetch-catalog.mjs   Source ingestion and record generation
+index.html                  Catalog and Nutrition Facts markup
+about.html                  The personal story and project scope
+app.js                      Search, filtering, measures, and rendering
+styles.css                  Layout, label styling, and responsive behavior
+data/catalog-data.js        Generated catalog records
+public/landing-page.png     Product screenshot
+scripts/fetch-catalog.mjs   Source ingestion and record generation
 ```
 
-## What is next
+## What I would add next
 
-The next meaningful product steps are verified Walmart and Great Value package records, barcode lookup, saved personal items, and a contribution workflow with a review trail. These should extend the source model rather than weaken the distinction between generic references and package-specific labels.
+The next additions are verified Walmart and Great Value records, barcode lookup, saved personal items, and a contribution process with a review trail. The data model needs to preserve the difference between a generic reference and a package-specific label as the catalog grows.
 
-## Scope and limitations
+## A necessary note about the numbers
 
-Pantry Index is a reference and comparison tool, not medical advice. Nutrition values depend on the source record, food state, and selected measure. The current generic catalog should be checked against the package in hand when a package label is available, especially for branded, fortified, or reformulated products.
+Pantry Index is a reference tool, not medical advice. Nutrition values depend on the source record, food state, and selected measure. For a branded, fortified, or reformulated product, the package in hand is still the final reference.
 
-## License
-
-No open-source license has been selected yet. Until one is added, treat the repository as source-available rather than freely reusable.
+There is no open-source license yet. Until one is added, the repository is source-available rather than freely reusable.
