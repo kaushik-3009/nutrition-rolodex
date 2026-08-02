@@ -18,6 +18,7 @@ Pantry Index is a public, search-first nutrition rolodex for plain ingredients a
 - [Ingestion notes](ingestion.md) — how records are selected, generated, validated, and promoted.
 - [Quality checklist](quality-checklist.md) — repeatable data and interface checks before adding records.
 - [Count measures](count-measures.md) — inventory of piece-based household measures and gram references.
+- [Deployment](deployment.md) — GitHub Pages setup, workflow, and verification routes.
 - [Roadmap](roadmap.md) — intentionally deferred product capabilities.
 
 ## Local preview
