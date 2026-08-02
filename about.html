@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Why Pantry Index exists: a personal solution to repeatedly searching for nutrition facts for rice, oats, lentils, dals, milk, and everyday ingredients." />
+    <meta name="keywords" content="about Pantry Index, nutrition facts, ingredient nutrition, lentil nutrition, dal nutrition, milk nutrition" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Why Pantry Index Exists" />
+    <meta property="og:description" content="A personal project built to make everyday ingredient nutrition easier for anyone to look up." />
+    <meta property="og:site_name" content="Pantry Index" />
+    <meta name="twitter:card" content="summary" />
+    <title>Why Pantry Index Exists | About</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="about-page">
+    <a class="skip-link" href="#story">Skip to story</a>
+    <header class="site-header">
+      <a class="brand" href="index.html#top" aria-label="Pantry Index home"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a>
+      <nav aria-label="Primary navigation"><a href="index.html#browse">Browse</a><a href="about.html" aria-current="page">About</a></nav>
+      <a class="quiet-button" href="index.html#browse">Open catalog <span>↗</span></a>
+    </header>
+
+    <main>
+      <section class="about-hero" aria-labelledby="about-title">
+        <h1 id="about-title">The back of the package, without the <em>scavenger hunt.</em></h1>
+        <p class="about-lede">I kept searching for the nutrition label on foods I already had at home. I made Pantry Index because I wanted one place to look, and then decided to make it useful for anyone else with the same problem.</p>
+      </section>
+
+      <section class="story-section" id="story" aria-labelledby="story-title">
+        <div class="story-intro"><p class="eyebrow">Why it exists</p><h2 id="story-title">I built this because I kept looking up the same foods.</h2></div>
+        <div class="story-copy"><p>I would search for “Great Value white rice nutrition,” then do it again for oats, lentils, beans, vegetables, and milk. The information was usually somewhere, but finding the serving size and the full nutrient list took more effort than it should.</p><p>So I started putting the foods I actually use into one searchable place. It is still a work in progress and it will have gaps. My hope is simple: make the everyday lookup easier for me, then make it useful for anyone who wants to use it.</p></div>
+      </section>
+
+      <section class="about-points" aria-labelledby="principles-title">
+        <div class="about-section-heading"><h2 id="principles-title">What each entry includes.</h2></div>
+        <div class="about-point-grid">
+          <article><span class="point-number">01</span><h3>Search</h3><p>Filter the catalog by ingredient, food group, or state.</p></article>
+          <article><span class="point-number">02</span><h3>Serving size</h3><p>Use cups, tablespoons, or grams when appropriate.</p></article>
+          <article><span class="point-number">03</span><h3>Nutrition facts</h3><p>See calories, nutrients, and Daily Values for the selected amount.</p></article>
+          <article><span class="point-number">04</span><h3>Food state</h3><p>Raw, dry, canned, and frozen records remain clearly separated.</p></article>
+        </div>
+      </section>
+
+      <section class="catalog-path" aria-labelledby="path-title">
+        <div><p class="eyebrow">What comes next</p><h2 id="path-title">The catalog will expand in stages.</h2></div>
+        <div class="path-list"><div><span>Now</span><p>Plain ingredients and familiar foods, including grains, Indian pulses and dals, produce, proteins, dairy, milk, and pantry staples.</p></div><div><span>Next</span><p>More Walmart and Great Value records when the package label can be checked carefully.</p></div><div><span>Later</span><p>Saved foods, barcode lookup, and suggestions from other people with a review trail.</p></div></div>
+      </section>
+
+    </main>
+
+    <footer><a class="brand" href="index.html#top"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a><nav aria-label="Footer navigation"><a href="index.html#browse">Browse</a><a href="about.html">About</a></nav><p>Nutrition information is a reference, not medical advice.</p><p>© <span id="year"></span></p></footer>
+    <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"AboutPage","name":"Why Pantry Index Exists","description":"The personal story behind Pantry Index, a searchable nutrition reference for everyday ingredients."}</script>
+  </body>
+</html>
