@@ -2,7 +2,7 @@
 
 # Pantry Index
 
-A personal catalog of nutrition labels, built so I never have to Google "Great Value white rice nutrition" again.
+A personal catalog of nutrition labels, built so I can plan my nutrition more easily and never Google "xyz nutrition" again.
 
 [![Static site](https://img.shields.io/badge/site-static-244c3a?style=flat-square)](https://kaushik-3009.github.io/nutrition-rolodex/)
 [![Vanilla JavaScript](https://img.shields.io/badge/frontend-vanilla%20JavaScript-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://github.com/kaushik-3009/nutrition-rolodex)
