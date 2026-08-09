@@ -17,7 +17,9 @@ A personal catalog of nutrition labels, built so I can plan my nutrition more ea
 
 ## Why
 
-I constantly look up nutrition info particularly to research the quantities of lesser-known ones like vit k or magnesium in staples like rice, oats, and lentils. This meant digging through random web pages with inconsistent serving sizes with so much bloat. Pantry Index solves this problem for me and I hope it does for you too. It gives each ingredient one readable comprehensive nutrition record with a kitchen-friendly default measure and its gram equivalent.
+I constantly look up nutrition info, especially to check lesser-known nutrients like vitamin K or magnesium in staples like rice, oats, and lentils. Standard labels don't show these, so I always ended up digging through the same bloated websites with inconsistent serving sizes and ad spam. 
+
+Pantry Index solves this problem for me, and I hope it does for you too. It gives each ingredient a single, easy-to-read, comprehensive nutrition record with a kitchen-friendly measure and its exact gram equivalent.
 
 ## Features
 
