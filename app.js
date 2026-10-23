@@ -19,7 +19,7 @@ let currentPage = 1;
 const pageSize = 12;
 const html = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
 const normalizeSearch = value => value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
-const searchableFoods = new Map(catalog.map(food => [food.id, normalizeSearch([food.name, food.group, food.state, ...(food.aliases || []), food.sourceDescription].join(" "))]));
+const searchableFoods = new Map(catalog.map(food => [food.id, normalizeSearch([food.name, food.group, food.state, ...(food.aliases || []), food.sourceDescription].join(" ")).split(/\s+/)]));
 const $ = (selector) => document.querySelector(selector);
 
 function showToast(message) {
@@ -83,33 +83,49 @@ function measurementLabel(food, includeState = false) {
 }
 
 function renderGroups() {
-  const groups = [...new Set(catalog.map((food) => food.group))].sort((a, b) => { const ai = groupOrder.indexOf(a), bi = groupOrder.indexOf(b); return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.localeCompare(b); });
-  $("#group-filters").innerHTML = [{ name: "All foods", value: "all", count: catalog.length }, ...groups.map((group) => ({ name: group, value: group, count: catalog.filter((food) => food.group === group).length }))].map((group) => `<button type="button" class="${selectedGroup === group.value ? "active" : ""}" data-group="${html(group.value)}">${html(group.name)}<span>${group.count}</span></button>`).join("");
-  document.querySelectorAll("[data-group]").forEach((button) => button.addEventListener("click", () => { selectedGroup = button.dataset.group; currentPage = 1; renderGroups(); renderResults(); }));
+  const counts = new Map();
+  for (const food of catalog) counts.set(food.group, (counts.get(food.group) || 0) + 1);
+  const groups = [...counts.keys()].sort((a, b) => a.localeCompare(b));
+  $("#group-select").innerHTML = `<option value="all">All foods (${catalog.length})</option>` + groups.map(group => `<option value="${html(group)}">${html(group)} (${counts.get(group)})</option>`).join("");
+  $("#group-select").value = selectedGroup;
+}
+function syncFilters() {
+  $("#group-select").value = selectedGroup;
+  document.querySelectorAll("[data-state]").forEach(button => {
+    button.classList.toggle("active", button.dataset.state === selectedState);
+    button.setAttribute("aria-pressed", String(button.dataset.state === selectedState));
+  });
+  $("#reset-filters").hidden = selectedGroup === "all" && selectedState === "all";
+}
+function clearFilters() { selectedGroup = "all"; selectedState = "all"; currentPage = 1; syncFilters(); renderResults(); $("#results-grid").scrollTop = 0; }
+function focusSearch() {
+  $("#food-browser").scrollIntoView({ behavior: "instant", block: "start" });
+  $("#catalog-search").focus({ preventScroll: true }); $("#catalog-search").select();
 }
 function filteredFoods() {
   const query = normalizeSearch(searchTerm);
   const terms = query.split(/\s+/).filter(Boolean);
-  return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.includes(term))) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
+  return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.some(word => word.startsWith(term)))) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
 }
 function renderPagination(totalItems) {
   const pagination = $("#pagination");
   const totalPages = Math.ceil(totalItems / pageSize);
   if (totalPages <= 1) { pagination.innerHTML = ""; return; }
   pagination.innerHTML = `<button type="button" data-page-action="previous" ${currentPage === 1 ? "disabled" : ""}>Previous</button><span>Page ${currentPage} of ${totalPages}</span><button type="button" data-page-action="next" ${currentPage === totalPages ? "disabled" : ""}>Next</button>`;
-  pagination.querySelector("[data-page-action=previous]").addEventListener("click", () => { currentPage -= 1; renderResults(); });
-  pagination.querySelector("[data-page-action=next]").addEventListener("click", () => { currentPage += 1; renderResults(); });
+  pagination.querySelector("[data-page-action=previous]").addEventListener("click", () => { currentPage -= 1; renderResults(); $("#results-grid").scrollTop = 0; $("#results-grid").focus({ preventScroll: true }); });
+  pagination.querySelector("[data-page-action=next]").addEventListener("click", () => { currentPage += 1; renderResults(); $("#results-grid").scrollTop = 0; $("#results-grid").focus({ preventScroll: true }); });
 }
 function renderResults() {
   const foods = filteredFoods();
-  const selectionChanged = Boolean(foods.length && !foods.some((food) => food.id === selectedFood?.id));
-  if (selectionChanged) selectedFood = foods[0];
+  const nextSelection = foods.find(food => food.id === selectedFood?.id) || foods[0] || null;
+  const selectionChanged = nextSelection?.id !== selectedFood?.id;
+  selectedFood = nextSelection;
   const totalPages = Math.ceil(foods.length / pageSize);
   currentPage = totalPages ? Math.min(currentPage, totalPages) : 1;
   const pageFoods = foods.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   $("#result-count").textContent = `${foods.length} ${foods.length === 1 ? "entry" : "entries"}${searchTerm ? ` matching “${searchTerm}”` : " in the catalog"}${totalPages > 1 ? ` · page ${currentPage} of ${totalPages}` : ""}`;
   $("#catalog-search-count").textContent = searchTerm ? `${foods.length} found` : `${catalog.length} foods`;
-  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(food.group)}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
+  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" aria-pressed="${selectedFood?.id === food.id}" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(food.group)}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
   renderPagination(foods.length);
   $("#empty-state").hidden = foods.length !== 0;
   document.querySelectorAll("[data-food-id]").forEach((button) => button.addEventListener("click", () => selectFood(catalog.find((food) => food.id === button.dataset.foodId))));
@@ -120,21 +136,23 @@ function renderRows(food, grams) {
   const rows = nutrientRows.map(([key, label, unit, hasDV, indent]) => `<div class="${indent ? "indent" : ""}"><dt>${indent ? label : `<b>${label}</b>`} ${formatNumber(nutrientValue(food, key, grams), unit)}</dt><dd>${hasDV ? dvValue(key, nutrientValue(food, key, grams)) : "—"}</dd></div>`);
   $("#nutrients").innerHTML = `<div class="section-row"><dt>Macronutrients</dt><dd></dd></div>${rows.slice(0, 10).join("")}<div class="section-row"><dt>Vitamins & minerals</dt><dd></dd></div>${rows.slice(10).join("")}`;
 }
-function renderMeasure() {
+function renderMeasure({ preserveInput = false } = {}) {
   if (!selectedFood) return;
+  if (!preserveInput) $("#add-feedback").textContent = "";
   const food = selectedFood;
   const gramsPerUnit = currentUnitGrams(food);
   if (currentUnit !== "g" && !gramsPerUnit) { resetMeasurement(food); return renderMeasure(); }
   const countOption = document.querySelector("[data-unit=count]");
   if (countOption) { countOption.hidden = !food.countMeasure?.grams; if (food.countMeasure) countOption.textContent = food.countMeasure.unit; }
-  document.querySelectorAll("[data-unit]").forEach((button) => { const available = button.dataset.unit === "g" || (button.dataset.unit === "cup" && food.cupGrams) || (button.dataset.unit === "tbsp" && food.tbspGrams) || (button.dataset.unit === "count" && food.countMeasure?.grams); button.disabled = !available; button.classList.toggle("active", button.dataset.unit === currentUnit); });
-  $("#amount-input").value = currentAmount;
+  document.querySelectorAll("[data-unit]").forEach((button) => { const available = button.dataset.unit === "g" || (button.dataset.unit === "cup" && food.cupGrams) || (button.dataset.unit === "tbsp" && food.tbspGrams) || (button.dataset.unit === "count" && food.countMeasure?.grams); button.disabled = !available; button.hidden = !available; button.setAttribute("aria-pressed", String(button.dataset.unit === currentUnit)); button.classList.toggle("active", button.dataset.unit === currentUnit); });
+  if (!preserveInput) $("#amount-input").value = currentAmount;
   $("#amount-input").step = "any";
   $("#amount-input").max = Math.min(1000000, 1000000 / currentUnitGrams(food));
   $("#amount-input").removeAttribute("aria-invalid");
   $("#amount-error").hidden = true;
   $("#amount-unit-label").textContent = currentUnit === "g" ? "g" : currentUnit === "cup" ? (currentAmount === 1 ? "cup" : "cups") : currentUnit === "tbsp" ? "tbsp" : currentAmount === 1 ? food.countMeasure.unit : food.countMeasure.plural;
   $("#amount-equivalent").textContent = currentUnit === "g" ? "" : `[${Math.round(selectedGrams(food))} g]`;
+  $(".measure-options").hidden = document.querySelectorAll("[data-unit]:not([hidden])").length <= 1;
   const grams = selectedGrams(food);
   $("#serving-size").textContent = measurementLabel(food, true);
   $("#calories").textContent = formatNumber(nutrientValue(food, "calories", grams), "");
@@ -144,6 +162,12 @@ function renderMeasure() {
   $("#add-to-menu").disabled = !Number.isFinite(grams) || grams <= 0 || grams > 1000000;
 }
 function renderLabel() {
+  const hasSelection = Boolean(selectedFood);
+  $("#food-picker").hidden = !hasSelection;
+  $("#no-selection").hidden = hasSelection;
+  $("#add-feedback").textContent = "";
+  document.querySelectorAll("#detail .food-context, #detail .label-panel, #detail .source-meta").forEach(element => { element.hidden = !hasSelection; });
+  $("#add-to-menu").disabled = !hasSelection;
   if (!selectedFood) return;
   const food = selectedFood;
   $("#detail-title").textContent = food.name;
@@ -157,7 +181,14 @@ function renderLabel() {
   $("#source-portion").innerHTML = '<option value="">Choose a portion…</option>' + portions.map(portion => `<option value="${portion.grams}">${html(portion.label)} (${portion.grams} g)</option>`).join("");
   resetMeasurement(food); renderMeasure();
 }
-function selectFood(food) { if (!food) return; selectedFood = food; renderResults(); renderLabel(); }
+function selectFood(food) {
+  if (!food) return;
+  const changed = selectedFood?.id !== food.id;
+  selectedFood = food; renderResults(); if (changed) renderLabel();
+  const pickerBounds = $("#food-picker").getBoundingClientRect();
+  if (window.matchMedia("(max-width: 780px)").matches || pickerBounds.top < 72 || pickerBounds.top > window.innerHeight - 200) $("#detail").scrollIntoView({ behavior: "instant", block: "start" });
+  $("#amount-input").focus({ preventScroll: true }); $("#amount-input").select();
+}
 function resetToDefaultMeasure() { if (!selectedFood) return; resetMeasurement(selectedFood); renderMeasure(); }
 function setUnit(unit) {
   const grams = selectedGrams(selectedFood);
@@ -167,24 +198,38 @@ function setUnit(unit) {
   renderMeasure();
 }
 
-$("#lookup").addEventListener("submit", (event) => { event.preventDefault(); searchTerm = $("#food-search").value.trim(); $("#catalog-search").value = searchTerm; currentPage = 1; renderResults(); const match = filteredFoods()[0]; if (match) selectFood(match); else showToast(`No catalog entry matches “${searchTerm}”.`); $("#browse").scrollIntoView({ behavior: "smooth", block: "start" }); });
-$("#catalog-search").addEventListener("input", () => { searchTerm = $("#catalog-search").value.trim(); $("#food-search").value = searchTerm; currentPage = 1; renderResults(); });
-document.querySelectorAll("[data-search]").forEach((button) => button.addEventListener("click", () => { $("#food-search").value = button.dataset.search; $("#lookup").requestSubmit(); }));
-document.querySelectorAll("[data-state]").forEach((button) => button.addEventListener("click", () => { selectedState = button.dataset.state; currentPage = 1; document.querySelectorAll("[data-state]").forEach((item) => item.classList.toggle("active", item === button)); renderResults(); }));
+$("#lookup").addEventListener("submit", event => {
+  event.preventDefault(); searchTerm = $("#food-search").value.trim(); $("#catalog-search").value = searchTerm;
+  selectedGroup = "all"; selectedState = "all"; currentPage = 1; syncFilters(); renderResults(); focusSearch();
+});
+$("#catalog-search").addEventListener("input", () => {
+  searchTerm = $("#catalog-search").value.trim(); $("#food-search").value = searchTerm; currentPage = 1; renderResults(); $("#results-grid").scrollTop = 0;
+});
+$("#catalog-search").addEventListener("keydown", event => {
+  if (event.key === "Enter") { event.preventDefault(); const first = filteredFoods()[0]; if (first) selectFood(first); }
+  if (event.key === "Escape") { $("#catalog-search").value = ""; $("#catalog-search").dispatchEvent(new Event("input")); }
+});
+document.querySelectorAll("[data-search]").forEach(button => button.addEventListener("click", () => { $("#food-search").value = button.dataset.search; $("#lookup").requestSubmit(); }));
+$("#group-select").addEventListener("change", event => { selectedGroup = event.target.value; currentPage = 1; syncFilters(); renderResults(); $("#results-grid").scrollTop = 0; });
+document.querySelectorAll("[data-state]").forEach(button => button.addEventListener("click", () => { selectedState = button.dataset.state; currentPage = 1; syncFilters(); renderResults(); }));
+$("#clear-filters").addEventListener("click", () => { clearFilters(); focusSearch(); });
+$("#reset-filters").addEventListener("click", clearFilters);
+$("#find-next-food").addEventListener("click", focusSearch);
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => setUnit(button.dataset.unit)));
 $("#reset-measure").addEventListener("click", resetToDefaultMeasure);
 $("#amount-input").addEventListener("input", () => {
+  $("#add-feedback").textContent = "";
   const input = $("#amount-input"); const value = Number(input.value);
   const grams = value * currentUnitGrams(selectedFood);
   if (!input.validity.valid || !Number.isFinite(grams) || grams <= 0 || grams > 1000000) {
     input.setAttribute("aria-invalid", "true");
-    $("#amount-error").textContent = "Enter a valid positive amount (up to 1,000,000 g). The label still shows the last valid amount.";
+    $("#amount-error").textContent = "Enter an amount of at least 0.01 units, up to 1,000,000 g. The label still shows the last valid amount.";
     $("#amount-error").hidden = false; $("#add-to-menu").disabled = true; return;
   }
-  currentAmount = value; renderMeasure();
+  currentAmount = value; renderMeasure({ preserveInput: true });
 });
 $("#increase").addEventListener("click", () => { currentAmount = Math.min(1000000 / currentUnitGrams(selectedFood), currentAmount + (currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1)); renderMeasure(); });
-$("#decrease").addEventListener("click", () => { const step = currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1; currentAmount = Math.max(step, currentAmount - step); renderMeasure(); });
+$("#decrease").addEventListener("click", () => { const step = currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1; currentAmount = Math.max(0.01, currentAmount - step); renderMeasure(); });
 document.querySelectorAll("[data-notice]").forEach((button) => button.addEventListener("click", () => showToast(button.dataset.notice)));
 $("#source-portion").addEventListener("change", event => {
   if (!event.target.value) return;
@@ -193,10 +238,14 @@ $("#source-portion").addEventListener("change", event => {
   event.target.value = "";
 });
 $("#add-to-menu").addEventListener("click", () => {
+  if (!selectedFood) return;
   const inputAmount = Number($("#amount-input").value);
   if (!$("#amount-input").validity.valid || !Number.isFinite(inputAmount) || inputAmount <= 0) { showToast("Enter an amount greater than zero."); return; }
   const grams = selectedGrams(selectedFood);
   window.dispatchEvent(new CustomEvent("pantry:add-food", { detail: { foodId: selectedFood.id, grams } }));
 });
 $("#year").textContent = new Date().getFullYear();
-renderGroups(); renderResults(); renderLabel();
+renderGroups(); syncFilters();
+const initialQuery = new URLSearchParams(window.location.search).get("q");
+if (initialQuery) { searchTerm = initialQuery; $("#catalog-search").value = initialQuery; $("#food-search").value = initialQuery; }
+renderResults(); renderLabel();

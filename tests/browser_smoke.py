@@ -17,7 +17,8 @@ with sync_playwright() as p:
     assert records > 7000
     assert page.locator('.result-card').count() > 0
     # Exercise normal UI addition, merging, quantity editing, reload and undo.
-    page.locator('[data-unit=g]').click()
+    if page.locator('[data-unit=g]').is_visible():
+        page.locator('[data-unit=g]').click()
     page.locator('#amount-input').fill('100')
     food_id = page.evaluate('selectedFood.id')
     expected = page.evaluate('selectedFood.per100g.calories.value')

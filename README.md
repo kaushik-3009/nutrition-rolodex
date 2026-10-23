@@ -25,6 +25,8 @@ Pantry Index solves this problem for me, and I hope it does for you too. It give
 
 - Search 7,857 source-backed foods by name, words, group, or preparation state.
 - Scale a food label by edible grams or use an available USDA reference portion.
+- Add beside the quantity field, then use Search next food to build a menu quickly.
+- Search within a food group or use the main search across all groups and preparations.
 - Add foods to a daily menu, adjust gram quantities, remove items, and undo edits or clearing.
 - See all selected foods combined in one nutrition label, with nutrient coverage and general Daily Values.
 - Save a reusable day plan in this browser and download its entries and totals as JSON.
@@ -50,13 +52,18 @@ local development environment, then run against the running server:
 
 ```sh
 python3 tests/browser_smoke.py
+python3 tests/menu_walkthrough.py http://127.0.0.1:8000
+python3 tests/browser_walkthrough.py
 ```
 
 The test uses `/usr/bin/chromium` by default; set `CHROMIUM_PATH` for another
 installation. It exercises adding/merging foods, scaling totals, editing,
 invalid inputs, persistence, undo, export, missing nutrient coverage, search,
 source portions, filters, mobile layout and the About page. The GitHub Pages
-workflow runs the Node tests and structural audit before deploying.
+workflow runs the Node checks and all three browser scripts before deploying.
+The full walkthrough repeats five-food search → quantity → add flows at 1440,
+1024, 768, 390 and 320 CSS pixels, checks desktop/mobile layout and keyboard
+entry, and verifies exported amounts and calories against the selected foods.
 
 ## Nutrition data and accuracy
 

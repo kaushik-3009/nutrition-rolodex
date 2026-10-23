@@ -32,7 +32,7 @@
         <form class="search-box" id="lookup" role="search">
           <label class="sr-only" for="food-search">Search foods and products</label>
           <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="food-search" name="q" autocomplete="off" placeholder="Try “white rice” or “black beans”" />
+          <input id="food-search" name="q" autocomplete="off" placeholder="Try “white rice” or “black beans”" aria-controls="results-grid" />
           <button type="submit">Search</button>
         </form>
         <div class="search-hints" aria-label="Popular searches"><span>Popular:</span><button type="button" data-search="white rice">White rice</button><button type="button" data-search="lentils">Lentils</button><button type="button" data-search="spinach">Spinach</button><button type="button" data-search="salmon">Salmon</button><button type="button" data-search="oats">Oats</button></div>
@@ -41,25 +41,42 @@
       <section class="browse-section" id="browse" aria-labelledby="browse-title">
         <div class="section-heading catalog-heading">
           <div class="heading-primary"><p class="eyebrow">The catalog</p><h2 id="browse-title">Browse foods.</h2></div>
-          <div class="selected-heading"><p class="eyebrow">Selected food</p><h2 id="detail-title">White rice, long grain</h2></div>
+
         </div>
         <div class="catalog-workspace">
-          <aside class="group-nav" aria-label="Food groups"><p class="filter-label">Food groups</p><div id="group-filters"></div></aside>
-          <div class="results-area">
-            <div class="catalog-search"><label for="catalog-search">Search this catalog</label><div class="catalog-search-field"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Filter foods as you type" autocomplete="off" /><span class="catalog-search-count" id="catalog-search-count"></span></div></div>
-            <div class="browse-toolbar"><p class="result-count" id="result-count"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
-            <div class="results-grid" id="results-grid" aria-live="polite"></div>
+
+          <div class="results-area" id="food-browser">
+            <div class="group-select-control"><label for="group-select">Food group</label><select id="group-select"><option value="all">All foods</option></select></div>
+            <div class="catalog-search"><label for="catalog-search">Search this catalog</label><div class="catalog-search-field"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Search foods…" autocomplete="off" aria-controls="results-grid" /><span class="catalog-search-count" id="catalog-search-count"></span></div></div>
+            <div class="browse-toolbar"><button class="quiet-button" id="reset-filters" type="button" hidden>Reset filters</button><p class="result-count" id="result-count" role="status"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
+            <div class="results-grid" id="results-grid" role="region" aria-label="Matching foods" tabindex="0"></div>
             <nav class="pagination" id="pagination" aria-label="Catalog pages"></nav>
-            <div class="empty-state" id="empty-state" hidden><p class="eyebrow">No match</p><h3>That ingredient is not in this catalog.</h3><p>Try a broader search or another food group.</p></div>
+            <div class="empty-state" id="empty-state" hidden><p class="eyebrow">No match</p><h3>No foods match these filters.</h3><p>Try another search, or clear the group and preparation filters.</p><button class="quiet-button" id="clear-filters" type="button">Clear filters</button></div>
           </div>
 
           <section class="detail-section" id="detail" aria-labelledby="detail-title">
+            <div class="food-picker" id="food-picker">
+              <p class="eyebrow">Selected food</p><h2 id="detail-title" tabindex="-1">Choose a food</h2>
+              <div class="measure-extension" aria-label="Serving size controls">
+                <div class="measure-heading"><label for="amount-input">Amount to add</label><button type="button" class="measure-reset" id="reset-measure" aria-label="Reset to 100 grams" title="Reset amount">↺</button></div>
+                <div class="quantity-add-row">
+                  <div class="measure-row"><button type="button" id="decrease" aria-label="Decrease amount">−</button><div class="measure-value"><input id="amount-input" type="number" min="0.01" step="any" max="1000000" value="100" inputmode="decimal" aria-label="Amount" aria-describedby="amount-error" /><span id="amount-unit-label">g</span><span id="amount-equivalent"></span></div><button type="button" id="increase" aria-label="Increase amount">+</button></div>
+                  <button class="primary-button add-menu-button" id="add-to-menu" type="button">+ Add to my day</button>
+                </div>
+                <p id="amount-error" role="status" class="input-error" hidden></p>
+                <div class="measure-options" role="group" aria-label="Choose amount unit"><button class="active" type="button" data-unit="g">grams</button><button type="button" data-unit="cup">cups</button><button type="button" data-unit="tbsp">tbsp</button><button type="button" data-unit="count" hidden>count</button></div>
+                <div class="source-portion" id="source-portion-control" hidden><label for="source-portion">Or use a USDA reference portion</label><select id="source-portion"><option value="">Choose a portion…</option></select></div>
+                <p class="measure-provenance" id="measure-provenance"></p>
+              </div>
+              <div class="picker-shortcuts"><button class="quiet-button" id="find-next-food" type="button">Search next food</button><a class="quiet-button" href="#daily-menu">View my day <span id="picker-menu-count"></span></a></div>
+              <p class="add-feedback" id="add-feedback" role="status"></p>
+            </div>
+            <p id="no-selection" class="menu-note" hidden>Choose a matching food to see its label and add an amount to your day.</p>
             <article class="food-context"><div class="context-dot" aria-hidden="true"></div><div><p class="item-type" id="food-type">Grains · Generic ingredient · Dry / uncooked</p><p id="food-description">Rice, white, long grain, unenriched, raw.</p></div></article>
             <section class="label-panel" aria-labelledby="nutrition-title">
-              <div class="measure-extension" aria-label="Serving size controls"><div class="measure-heading"><p>Show nutrition for</p><div class="measure-heading-actions"><span>Grams update automatically</span><button type="button" class="measure-reset" id="reset-measure" aria-label="Reset to default measure" title="Reset to default measure">↺</button></div></div><div class="measure-control-row"><div class="measure-row"><button type="button" id="decrease" aria-label="Decrease amount">−</button><div class="measure-value"><input id="amount-input" type="number" min="0.01" step="any" max="1000000" value="1" aria-label="Amount" /><span id="amount-unit-label">cup</span><span id="amount-equivalent">[180 g]</span></div><button type="button" id="increase" aria-label="Increase amount">+</button></div><div class="measure-options" role="group" aria-label="Choose amount unit"><button class="active" type="button" data-unit="g">grams</button><button type="button" data-unit="cup">cups</button><button type="button" data-unit="tbsp">tbsp</button><button type="button" data-unit="count" hidden>count</button></div></div></div>
-              <p id="amount-error" role="status" class="input-error" hidden></p><div class="source-portion" id="source-portion-control" hidden><label for="source-portion">Use a USDA reference portion</label><select id="source-portion"><option value="">Choose a portion…</option></select></div><div class="label-topline"><p class="label-kicker">Nutrition facts</p><span class="label-source">Per selected amount</span></div><h3 id="nutrition-title">Nutrition Facts</h3><p class="servings" id="servings">1 selected amount</p><div class="serving-row"><span>Serving size</span><strong id="serving-size">1 cup (180 g) dry</strong></div><div class="calories-row"><span>Amount per serving<br /><b>Calories</b></span><strong id="calories">—</strong></div><p class="daily-value">% Daily Value*</p><dl class="nutrients" id="nutrients"></dl><p class="label-footnote">*General FDA Daily Values for adults and children 4 years and older, based on a 2,000 calorie reference diet; not personalized targets. — means not reported or no comparable Daily Value. Folate DFE and vitamin A RAE are shown separately from other forms. Niacin is reported in mg, not niacin equivalents, so its Daily Value is withheld.</p>
+<div class="label-topline"><p class="label-kicker">Nutrition facts</p><span class="label-source">Per selected amount</span></div><h3 id="nutrition-title">Nutrition Facts</h3><p class="servings" id="servings">1 selected amount</p><div class="serving-row"><span>Serving size</span><strong id="serving-size">1 cup (180 g) dry</strong></div><div class="calories-row"><span>Amount per serving<br /><b>Calories</b></span><strong id="calories">—</strong></div><p class="daily-value">% Daily Value*</p><dl class="nutrients" id="nutrients"></dl><p class="label-footnote">*General FDA Daily Values for adults and children 4 years and older, based on a 2,000 calorie reference diet; not personalized targets. — means not reported or no comparable Daily Value. Folate DFE and vitamin A RAE are shown separately from other forms. Niacin is reported in mg, not niacin equivalents, so its Daily Value is withheld.</p>
             </section>
-            <button class="primary-button add-menu-button" id="add-to-menu" type="button">+ Add this amount to my day</button><p class="measure-provenance" id="measure-provenance"></p><dl class="source-meta"><div><dt>Source</dt><dd id="food-source">USDA FoodData Central</dd></div><div><dt>Record</dt><dd><a id="food-record" target="_blank" rel="noopener noreferrer">FDC 2512381</a></dd></div></dl>
+<dl class="source-meta"><div><dt>Source</dt><dd id="food-source">USDA FoodData Central</dd></div><div><dt>Record</dt><dd><a id="food-record" target="_blank" rel="noopener noreferrer">FDC 2512381</a></dd></div></dl>
           </section>
         </div>
       </section>

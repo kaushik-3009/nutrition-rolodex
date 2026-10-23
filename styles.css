@@ -58,3 +58,48 @@ button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible { 
 }
 .source-portion { margin:.5rem 0 1rem; }.source-portion label { display:block; font-size:.7rem; margin-bottom:.3rem; color:#58645c; }.source-portion select { max-width:100%; width:100%; padding:.45rem; background:var(--cream); border:1px solid var(--line); border-radius:.3rem; font-size:.75rem; color:var(--ink); }
 .input-error { padding:.65rem; border-left:3px solid var(--orange); background:var(--paper); color:#773b25; font-size:.78rem; }
+
+/* Keep food lookup, quantity and add in one compact workspace. */
+html { scroll-padding-top:90px; }
+.site-header { position:sticky; top:0; z-index:30; background:var(--paper); border-bottom:1px solid var(--line); min-height:72px; }
+.hero { padding:54px 0 60px; }.hero h1 { font-size:clamp(3rem,6vw,5rem); }
+.browse-section { padding:36px 0 48px; }.catalog-heading { display:block; }.catalog-heading .heading-primary { display:block; }
+.catalog-workspace { grid-template-columns:minmax(0,1fr) minmax(0,1.05fr); gap:2rem; }
+.results-area,.detail-section { min-width:0; }.detail-section { position:static; scroll-margin-top:90px; }
+#food-browser { scroll-margin-top:90px; }
+.group-select-control { margin-bottom:.75rem; }.group-select-control label { display:block; margin-bottom:.3rem; font-size:.8rem; font-weight:600; }
+.group-select-control select { width:100%; min-height:44px; padding:.6rem; border:1px solid var(--line); border-radius:.5rem; color:var(--ink); background:var(--cream); font-size:.85rem; }
+.catalog-search label { font-size:.72rem; color:#526159; }.catalog-search-field input { min-height:36px; font-size:1rem; }.catalog-search-field:focus-within { outline:2px solid var(--leaf); outline-offset:4px; border-radius:2px; }
+.browse-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }.result-count { flex:1 1 100%; font-size:.75rem; }.state-filters { justify-content:start; }
+.state-filters button { min-height:44px; padding:.5rem .65rem; font-size:.75rem; }
+.results-grid { display:flex; flex-direction:column; max-height:560px; overflow-y:auto; overscroll-behavior-y:contain; padding:.2rem .4rem .4rem .2rem; gap:.5rem; scrollbar-gutter:stable; }
+.result-card { flex:0 0 auto; min-height:0; width:100%; padding:.8rem; }.result-card:hover { transform:none; }
+.result-card .card-top { flex-wrap:wrap; min-height:0; margin-bottom:.45rem; gap:.3rem .6rem; }.card-type,.card-state { white-space:normal; overflow-wrap:anywhere; font-size:.63rem; }.card-state { color:#a24a27; }
+.result-card h3 { font-size:1.13rem; line-height:1.25; overflow-wrap:anywhere; }.result-card p { font-size:.73rem; }
+.pagination { margin-left:0; flex-wrap:wrap; }.pagination button { min-height:44px; font-size:.8rem; }
+.food-picker h2 { margin:0 0 .9rem; font-family:var(--serif); font-size:clamp(1.4rem,2.2vw,1.9rem); line-height:1.2; overflow-wrap:anywhere; }.food-picker .eyebrow { margin-bottom:.35rem; }
+.measure-extension { margin:0; padding:.8rem; }.measure-heading { align-items:center; }.measure-heading label { font-size:.9rem; font-weight:700; }
+.measure-reset { width:44px; height:44px; font-size:1.1rem; border-radius:.4rem; }
+.quantity-add-row { display:grid; grid-template-columns:minmax(0,1fr) auto; gap:.6rem; align-items:stretch; margin:.5rem 0; }
+.measure-row { grid-template-columns:44px minmax(0,1fr) 44px; }.measure-row button { min-height:48px; }
+.measure-value { flex-wrap:wrap; gap:.15rem; font-size:.95rem; }.measure-value input { width:100%; max-width:5.5rem; font-size:1rem; min-height:44px; text-align:center; }.measure-value span { font-size:.8rem; }
+.add-menu-button { width:auto; margin:0; padding:.6rem .8rem; min-height:48px; font-size:.85rem; }
+.measure-options { flex-wrap:wrap; max-width:none; gap:.4rem; }.measure-options button { min-height:44px; padding:.4rem .7rem; font-size:.8rem; }
+.source-portion { margin:.7rem 0 0; }.source-portion label { font-size:.75rem; }.source-portion select { min-height:44px; font-size:.85rem; }.measure-provenance { margin:.65rem 0 0; }
+.picker-shortcuts { display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.7rem; }.picker-shortcuts .quiet-button { display:inline-flex; align-items:center; min-height:44px; font-size:.8rem; }
+.add-feedback { min-height:1.5rem; margin:.5rem 0; font-size:.8rem; color:var(--leaf); }
+.empty-state { padding:1.5rem .5rem; }.empty-state .quiet-button { display:inline-block; min-height:44px; }
+.quiet-button:disabled { opacity:.45; cursor:not-allowed; }
+.site-header nav a { display:inline-flex; align-items:center; min-height:44px; }.search-hints button { min-height:44px; padding:.35rem; }
+.toast { z-index:40; font-size:.85rem; }.daily-menu-section { scroll-margin-top:90px; }
+.menu-item input { min-height:44px; font-size:1rem; }.remove-menu { min-height:44px; }
+@media (max-width:1050px) { .catalog-workspace { grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:1rem; }.quantity-add-row { gap:.4rem; }.measure-row { grid-template-columns:36px minmax(0,1fr) 36px; }.measure-value input { max-width:4rem; }.add-menu-button { padding:.5rem; } }
+@media (max-width:780px) {
+ .hero { padding:36px 0 40px; }.catalog-workspace { grid-template-columns:minmax(0,1fr); gap:1.25rem; }
+ .results-grid { max-height:340px; }.browse-section { padding-top:24px; }.food-picker h2 { font-size:1.5rem; }
+ .quantity-add-row { grid-template-columns:minmax(0,1fr) auto; gap:.5rem; }.measure-row { grid-template-columns:44px minmax(0,1fr) 44px; }.measure-value input { max-width:4rem; }
+ .add-menu-button { padding:.5rem .7rem; }.source-meta { grid-template-columns:1fr 1fr; }
+ .daily-menu-section { padding:32px 0 48px; }.toast { bottom:.75rem; right:.75rem; left:.75rem; max-width:none; text-align:center; }
+}
+@media (max-width:360px) { .measure-row { grid-template-columns:32px minmax(0,1fr) 32px; }.measure-value input { max-width:3rem; }.add-menu-button { max-width:115px; }.site-header nav { gap:.4rem; }.site-header .brand { font-size:.85rem; } }
+@media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none !important; } }
