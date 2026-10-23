@@ -21,14 +21,14 @@
     <a class="skip-link" href="#browse">Skip to catalog</a>
     <header class="site-header">
       <a class="brand" href="#top" aria-label="Pantry Index home"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a>
-      <nav aria-label="Primary navigation"><a href="#browse">Browse</a><a href="about.html">About</a></nav>
+      <nav aria-label="Primary navigation"><a href="#browse">Browse</a><a href="#daily-menu">My day <span id="menu-nav-count"></span></a><a href="about.html">About</a></nav>
     </header>
 
     <main id="top">
       <section class="hero" aria-labelledby="hero-title">
         <p class="eyebrow">A nutrition rolodex for the everyday pantry</p>
         <h1 id="hero-title">Know what’s in<br /><em>your food.</em></h1>
-        <p class="hero-copy">Look up plain ingredients and familiar grocery products. See the serving, the label, and the nutrients that usually live on the back of the package.</p>
+        <p class="hero-copy">Look up plain ingredients and familiar grocery products. See the serving, the label, and the nutrients that usually live on the back of the package. Build a daily menu to see it all together.</p>
         <form class="search-box" id="lookup" role="search">
           <label class="sr-only" for="food-search">Search foods and products</label>
           <span class="search-icon" aria-hidden="true">⌕</span>
@@ -47,7 +47,7 @@
           <aside class="group-nav" aria-label="Food groups"><p class="filter-label">Food groups</p><div id="group-filters"></div></aside>
           <div class="results-area">
             <div class="catalog-search"><label for="catalog-search">Search this catalog</label><div class="catalog-search-field"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Filter foods as you type" autocomplete="off" /><span class="catalog-search-count" id="catalog-search-count"></span></div></div>
-            <div class="browse-toolbar"><p class="result-count" id="result-count"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button></div></div>
+            <div class="browse-toolbar"><p class="result-count" id="result-count"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
             <div class="results-grid" id="results-grid" aria-live="polite"></div>
             <nav class="pagination" id="pagination" aria-label="Catalog pages"></nav>
             <div class="empty-state" id="empty-state" hidden><p class="eyebrow">No match</p><h3>That ingredient is not in this catalog.</h3><p>Try a broader search or another food group.</p></div>
@@ -56,10 +56,34 @@
           <section class="detail-section" id="detail" aria-labelledby="detail-title">
             <article class="food-context"><div class="context-dot" aria-hidden="true"></div><div><p class="item-type" id="food-type">Grains · Generic ingredient · Dry / uncooked</p><p id="food-description">Rice, white, long grain, unenriched, raw.</p></div></article>
             <section class="label-panel" aria-labelledby="nutrition-title">
-              <div class="measure-extension" aria-label="Serving size controls"><div class="measure-heading"><p>Show nutrition for</p><div class="measure-heading-actions"><span>Grams update automatically</span><button type="button" class="measure-reset" id="reset-measure" aria-label="Reset to default measure" title="Reset to default measure">↺</button></div></div><div class="measure-control-row"><div class="measure-row"><button type="button" id="decrease" aria-label="Decrease amount">−</button><div class="measure-value"><input id="amount-input" type="number" min="0.01" step="0.25" value="1" aria-label="Amount" /><span id="amount-unit-label">cup</span><span id="amount-equivalent">[180 g]</span></div><button type="button" id="increase" aria-label="Increase amount">+</button></div><div class="measure-options" role="group" aria-label="Choose amount unit"><button class="active" type="button" data-unit="g">grams</button><button type="button" data-unit="cup">cups</button><button type="button" data-unit="tbsp">tbsp</button><button type="button" data-unit="count" hidden>count</button></div></div></div>
-              <div class="label-topline"><p class="label-kicker">Nutrition facts</p><span class="label-source">Per selected amount</span></div><h3 id="nutrition-title">Nutrition Facts</h3><p class="servings" id="servings">1 selected amount</p><div class="serving-row"><span>Serving size</span><strong id="serving-size">1 cup (180 g) dry</strong></div><div class="calories-row"><span>Amount per serving<br /><b>Calories</b></span><strong id="calories">—</strong></div><p class="daily-value">% Daily Value*</p><dl class="nutrients" id="nutrients"></dl><p class="label-footnote">*Percent Daily Values are based on a 2,000 calorie diet. A dash means a Daily Value is not established or is not available from the source.</p>
+              <div class="measure-extension" aria-label="Serving size controls"><div class="measure-heading"><p>Show nutrition for</p><div class="measure-heading-actions"><span>Grams update automatically</span><button type="button" class="measure-reset" id="reset-measure" aria-label="Reset to default measure" title="Reset to default measure">↺</button></div></div><div class="measure-control-row"><div class="measure-row"><button type="button" id="decrease" aria-label="Decrease amount">−</button><div class="measure-value"><input id="amount-input" type="number" min="0.01" step="any" max="1000000" value="1" aria-label="Amount" /><span id="amount-unit-label">cup</span><span id="amount-equivalent">[180 g]</span></div><button type="button" id="increase" aria-label="Increase amount">+</button></div><div class="measure-options" role="group" aria-label="Choose amount unit"><button class="active" type="button" data-unit="g">grams</button><button type="button" data-unit="cup">cups</button><button type="button" data-unit="tbsp">tbsp</button><button type="button" data-unit="count" hidden>count</button></div></div></div>
+              <p id="amount-error" role="status" class="input-error" hidden></p><div class="source-portion" id="source-portion-control" hidden><label for="source-portion">Use a USDA reference portion</label><select id="source-portion"><option value="">Choose a portion…</option></select></div><div class="label-topline"><p class="label-kicker">Nutrition facts</p><span class="label-source">Per selected amount</span></div><h3 id="nutrition-title">Nutrition Facts</h3><p class="servings" id="servings">1 selected amount</p><div class="serving-row"><span>Serving size</span><strong id="serving-size">1 cup (180 g) dry</strong></div><div class="calories-row"><span>Amount per serving<br /><b>Calories</b></span><strong id="calories">—</strong></div><p class="daily-value">% Daily Value*</p><dl class="nutrients" id="nutrients"></dl><p class="label-footnote">*General FDA Daily Values for adults and children 4 years and older, based on a 2,000 calorie reference diet; not personalized targets. — means not reported or no comparable Daily Value. Folate DFE and vitamin A RAE are shown separately from other forms. Niacin is reported in mg, not niacin equivalents, so its Daily Value is withheld.</p>
             </section>
-            <dl class="source-meta"><div><dt>Source</dt><dd id="food-source">USDA FoodData Central</dd></div><div><dt>Record</dt><dd id="food-record">FDC 2512381</dd></div></dl>
+            <button class="primary-button add-menu-button" id="add-to-menu" type="button">+ Add this amount to my day</button><p class="measure-provenance" id="measure-provenance"></p><dl class="source-meta"><div><dt>Source</dt><dd id="food-source">USDA FoodData Central</dd></div><div><dt>Record</dt><dd><a id="food-record" target="_blank" rel="noopener noreferrer">FDC 2512381</a></dd></div></dl>
+          </section>
+        </div>
+      </section>
+      <section class="daily-menu-section" id="daily-menu" aria-labelledby="menu-title">
+        <div class="section-heading"><div><p class="eyebrow">The whole picture</p><h2 id="menu-title" tabindex="-1">Your day, in one label.</h2></div><a class="quiet-button" href="#browse">+ Browse foods</a></div>
+        <p class="menu-intro">Choose a food and an amount above, then add it to your day. Use the food in the state you actually weigh it: dry rice and cooked rice have different nutrition per gram.</p>
+        <div class="menu-workspace">
+          <div class="menu-editor">
+            <div class="menu-toolbar"><p id="menu-summary" role="status">No foods added yet</p><button class="quiet-button" id="clear-menu" type="button" disabled>Clear day</button><button class="quiet-button" id="undo-menu" type="button" hidden>Undo</button></div>
+            <p id="menu-empty">Start with breakfast, or any food you plan to eat. Add individual foods from a food group; a group itself has no single nutrition profile.</p>
+            <ul id="menu-items" class="menu-items" aria-label="Foods in your daily menu"></ul>
+            <p id="menu-input-status" role="status" class="input-error" hidden></p><p id="menu-nutrition-status" role="status" class="sr-only"></p><p id="menu-storage-status" class="menu-note">Saved in this browser on this device. This is a reusable day plan, not a dated food log.</p>
+            <button class="quiet-button" id="export-menu" type="button" disabled>Download day (JSON)</button>
+          </div>
+          <section class="label-panel daily-label" aria-labelledby="day-nutrition-title">
+            <div class="label-topline"><p class="label-kicker">Your daily menu</p><span class="label-source">All selected foods</span></div>
+            <h3 id="day-nutrition-title">Nutrition Facts</h3>
+            <p class="servings">Total for your planned day</p>
+            <div class="serving-row"><span>Foods combined</span><strong id="day-serving">0 items</strong></div>
+            <div class="calories-row"><span>Daily total<br /><b>Calories</b></span><strong id="day-calories">—</strong></div>
+            <p id="day-calorie-coverage" class="coverage-note"></p>
+            <p class="daily-value">% Daily Value*</p><dl class="nutrients" id="day-nutrients"></dl>
+            <p class="label-footnote">*General FDA Daily Values for adults and children 4 years and older, based on a 2,000 calorie reference diet. These are not personalized requirements. 100% is not a goal for every nutrient; limit saturated fat and sodium. A low value does not diagnose a deficiency.</p>
+            <p class="label-footnote">— means no reported value. ≥ marks a known subtotal when some foods lack data; its Daily Value is withheld. Missing nutrients are never counted as zero. Food composition varies by variety, preparation and portion.</p>
           </section>
         </div>
       </section>
@@ -67,6 +91,6 @@
 
     <footer><a class="brand" href="#top"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a><nav aria-label="Footer navigation"><a href="#browse">Browse</a><a href="about.html">About</a></nav><p>Nutrition information is a reference, not medical advice.</p><p>© <span id="year"></span></p></footer>
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
-    <script src="data/catalog-data.js"></script><script src="app.js"></script>
+    <script src="data/catalog-data.js"></script><script src="nutrition.js"></script><script src="app.js"></script><script src="menu.js"></script>
   </body>
 </html>
