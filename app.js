@@ -1,15 +1,15 @@
 const catalog = window.PANTRY_CATALOG || [];
 const groupOrder = ["Grains", "Pulses", "Vegetables", "Fruit", "Proteins", "Seafood", "Dairy & eggs", "Milk & alternatives", "Nuts & seeds", "Oils", "Canned", "Frozen", "Walmart / Great Value"];
-const stateLabels = { raw: "Raw", dry: "Dry / uncooked", canned: "Canned", frozen: "Frozen" };
-const dailyValues = { fat: 78, satFat: 20, cholesterol: 300, sodium: 2300, carbs: 275, fiber: 28, protein: 50, calcium: 1300, iron: 18, magnesium: 420, phosphorus: 1250, potassium: 4700, zinc: 11, copper: .9, selenium: 55, vitaminA: 900, vitaminC: 90, vitaminD: 20, vitaminE: 15, vitaminK: 120, thiamin: 1.2, riboflavin: 1.3, niacin: 16, vitaminB6: 1.7, folate: 400, vitaminB12: 2.4, choline: 550 };
+const stateLabels = { raw: "Raw", dry: "Dry / uncooked", canned: "Canned", frozen: "Frozen", cooked: "Cooked", other: "Other / prepared", "as sold": "Preparation not specified" };
+const dailyValues = { fat: 78, satFat: 20, cholesterol: 300, sodium: 2300, carbs: 275, fiber: 28, protein: 50, calcium: 1300, iron: 18, magnesium: 420, phosphorus: 1250, potassium: 4700, zinc: 11, copper: .9, selenium: 55, vitaminA: 900, vitaminC: 90, vitaminD: 20, vitaminE: 15, vitaminK: 120, thiamin: 1.2, riboflavin: 1.3, niacin: 16, vitaminB6: 1.7, folateDFE: 400, iodine: 150, pantothenicAcid: 5, biotin: 30, addedSugars: 50, vitaminB12: 2.4, choline: 550 };
 const nutrientRows = [
   ["fat", "Total Fat", "g", true], ["satFat", "Saturated Fat", "g", true, true], ["transFat", "Trans Fat", "g", false, true], ["cholesterol", "Cholesterol", "mg", true], ["sodium", "Sodium", "mg", true],
-  ["carbs", "Total Carbohydrate", "g", true], ["fiber", "Dietary Fiber", "g", true, true], ["sugars", "Total Sugars", "g", false, true], ["protein", "Protein", "g", false],
+  ["carbs", "Total Carbohydrate", "g", true], ["fiber", "Dietary Fiber", "g", true, true], ["sugars", "Total Sugars", "g", false, true], ["addedSugars", "Added Sugars", "g", true, true], ["protein", "Protein", "g", false],
   ["calcium", "Calcium", "mg", true], ["iron", "Iron", "mg", true], ["magnesium", "Magnesium", "mg", true], ["phosphorus", "Phosphorus", "mg", true], ["potassium", "Potassium", "mg", true], ["zinc", "Zinc", "mg", true], ["copper", "Copper", "mg", true], ["selenium", "Selenium", "mcg", true],
-  ["vitaminA", "Vitamin A", "mcg", true], ["vitaminC", "Vitamin C", "mg", true], ["vitaminD", "Vitamin D", "mcg", true], ["vitaminE", "Vitamin E", "mg", true], ["vitaminK", "Vitamin K", "mcg", true], ["thiamin", "Thiamin (B1)", "mg", true], ["riboflavin", "Riboflavin (B2)", "mg", true], ["niacin", "Niacin (B3)", "mg", true], ["vitaminB6", "Vitamin B6", "mg", true], ["folate", "Folate", "mcg", true], ["vitaminB12", "Vitamin B12", "mcg", true], ["choline", "Choline", "mg", true]
+  ["vitaminA", "Vitamin A (RAE)", "mcg", true], ["vitaminC", "Vitamin C", "mg", true], ["vitaminD", "Vitamin D", "mcg", true], ["vitaminE", "Vitamin E", "mg", true], ["vitaminK", "Vitamin K", "mcg", true], ["thiamin", "Thiamin (B1)", "mg", true], ["riboflavin", "Riboflavin (B2)", "mg", true], ["niacin", "Niacin (B3)", "mg", false], ["vitaminB6", "Vitamin B6", "mg", true], ["folate", "Folate (total)", "mcg", false], ["folateDFE", "Folate (DFE)", "mcg", true], ["vitaminB12", "Vitamin B12", "mcg", true], ["choline", "Choline", "mg", true], ["iodine", "Iodine", "mcg", true], ["pantothenicAcid", "Pantothenic acid (B5)", "mg", true], ["biotin", "Biotin (B7)", "mcg", true]
 ];
 
-let selectedFood = catalog.find((food) => food.name.toLowerCase().includes("white rice")) || catalog[0];
+let selectedFood = catalog.find((food) => food.id === "generic-white-rice-long-grain") || catalog[0];
 let selectedGroup = "all";
 let selectedState = "all";
 let searchTerm = "";
@@ -17,6 +17,9 @@ let currentUnit = "g";
 let currentAmount = selectedFood?.servingGrams || 100;
 let currentPage = 1;
 const pageSize = 12;
+const html = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+const normalizeSearch = value => value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
+const searchableFoods = new Map(catalog.map(food => [food.id, normalizeSearch([food.name, food.group, food.state, ...(food.aliases || []), food.sourceDescription].join(" "))]));
 const $ = (selector) => document.querySelector(selector);
 
 function showToast(message) {
@@ -33,13 +36,11 @@ function readableSourceDescription(food) {
 }
 function formatNumber(value, unit) {
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
-  const precision = unit === "kcal" ? 0 : value >= 10 ? 0 : 1;
+  if (value > 0 && value < 0.001) return `${Number(value.toPrecision(2))}${unit}`;
+  const precision = unit === "kcal" || unit === "" ? 0 : value >= 10 ? 0 : value >= 1 ? 1 : 3;
   return `${Number(value.toFixed(precision))}${unit}`;
 }
-function nutrientValue(food, key, grams) {
-  const nutrient = food?.per100g?.[key];
-  return nutrient?.value === null || nutrient?.value === undefined ? null : nutrient.value * grams / 100;
-}
+function nutrientValue(food, key, grams) { return PantryNutrition.nutrientValue(food, key, grams); }
 function dvValue(key, value) { return !dailyValues[key] || value === null || value === undefined ? "—" : `${Math.round(value / dailyValues[key] * 100)}%`; }
 
 function defaultMeasurement(food) {
@@ -71,7 +72,7 @@ function selectedGrams(food) { return currentUnit === "g" ? currentAmount : curr
 function fractionLabel(value) { return value === .25 ? "¼" : value === 1 / 3 ? "⅓" : value === .5 ? "½" : value === 2 / 3 ? "⅔" : value === .75 ? "¾" : Number(value.toFixed(2)); }
 function measurementLabel(food, includeState = false) {
   const grams = Math.round(selectedGrams(food));
-  let label = `${Math.round(currentAmount)} g`;
+  let label = `${fractionLabel(currentAmount)} g`;
   if (currentUnit === "cup") label = `${fractionLabel(currentAmount)} cup${currentAmount === 1 ? "" : "s"} [${grams} g]`;
   if (currentUnit === "tbsp") label = `${currentAmount} tbsp [${grams} g]`;
   if (currentUnit === "count" && food.countMeasure) {
@@ -82,13 +83,14 @@ function measurementLabel(food, includeState = false) {
 }
 
 function renderGroups() {
-  const groups = [...new Set(catalog.map((food) => food.group))].sort((a, b) => groupOrder.indexOf(a) - groupOrder.indexOf(b));
-  $("#group-filters").innerHTML = [{ name: "All foods", value: "all", count: catalog.length }, ...groups.map((group) => ({ name: group, value: group, count: catalog.filter((food) => food.group === group).length }))].map((group) => `<button type="button" class="${selectedGroup === group.value ? "active" : ""}" data-group="${group.value}">${group.name}<span>${group.count}</span></button>`).join("");
+  const groups = [...new Set(catalog.map((food) => food.group))].sort((a, b) => { const ai = groupOrder.indexOf(a), bi = groupOrder.indexOf(b); return (ai < 0 ? 999 : ai) - (bi < 0 ? 999 : bi) || a.localeCompare(b); });
+  $("#group-filters").innerHTML = [{ name: "All foods", value: "all", count: catalog.length }, ...groups.map((group) => ({ name: group, value: group, count: catalog.filter((food) => food.group === group).length }))].map((group) => `<button type="button" class="${selectedGroup === group.value ? "active" : ""}" data-group="${html(group.value)}">${html(group.name)}<span>${group.count}</span></button>`).join("");
   document.querySelectorAll("[data-group]").forEach((button) => button.addEventListener("click", () => { selectedGroup = button.dataset.group; currentPage = 1; renderGroups(); renderResults(); }));
 }
 function filteredFoods() {
-  const query = searchTerm.trim().toLowerCase();
-  return catalog.filter((food) => { const searchable = [food.name, food.group, food.state, ...(food.aliases || []), food.sourceDescription].join(" ").toLowerCase(); return (!query || searchable.includes(query)) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
+  const query = normalizeSearch(searchTerm);
+  const terms = query.split(/\s+/).filter(Boolean);
+  return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.includes(term))) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
 }
 function renderPagination(totalItems) {
   const pagination = $("#pagination");
@@ -107,7 +109,7 @@ function renderResults() {
   const pageFoods = foods.slice((currentPage - 1) * pageSize, currentPage * pageSize);
   $("#result-count").textContent = `${foods.length} ${foods.length === 1 ? "entry" : "entries"}${searchTerm ? ` matching “${searchTerm}”` : " in the catalog"}${totalPages > 1 ? ` · page ${currentPage} of ${totalPages}` : ""}`;
   $("#catalog-search-count").textContent = searchTerm ? `${foods.length} found` : `${catalog.length} foods`;
-  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" data-food-id="${food.id}"><span class="card-top"><span class="card-type">${food.group}</span><span class="card-state">${compactState(food.state)}</span></span><h3>${food.name}</h3><p>${food.sourceType === "branded" ? "Great Value label" : "Generic ingredient"} · ${food.servingGrams}g reference</p></button>`).join("");
+  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(food.group)}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
   renderPagination(foods.length);
   $("#empty-state").hidden = foods.length !== 0;
   document.querySelectorAll("[data-food-id]").forEach((button) => button.addEventListener("click", () => selectFood(catalog.find((food) => food.id === button.dataset.foodId))));
@@ -116,7 +118,7 @@ function renderResults() {
 
 function renderRows(food, grams) {
   const rows = nutrientRows.map(([key, label, unit, hasDV, indent]) => `<div class="${indent ? "indent" : ""}"><dt>${indent ? label : `<b>${label}</b>`} ${formatNumber(nutrientValue(food, key, grams), unit)}</dt><dd>${hasDV ? dvValue(key, nutrientValue(food, key, grams)) : "—"}</dd></div>`);
-  $("#nutrients").innerHTML = `<div class="section-row"><dt>Macronutrients</dt><dd></dd></div>${rows.slice(0, 9).join("")}<div class="section-row"><dt>Vitamins & minerals</dt><dd></dd></div>${rows.slice(9).join("")}`;
+  $("#nutrients").innerHTML = `<div class="section-row"><dt>Macronutrients</dt><dd></dd></div>${rows.slice(0, 10).join("")}<div class="section-row"><dt>Vitamins & minerals</dt><dd></dd></div>${rows.slice(10).join("")}`;
 }
 function renderMeasure() {
   if (!selectedFood) return;
@@ -127,21 +129,32 @@ function renderMeasure() {
   if (countOption) { countOption.hidden = !food.countMeasure?.grams; if (food.countMeasure) countOption.textContent = food.countMeasure.unit; }
   document.querySelectorAll("[data-unit]").forEach((button) => { const available = button.dataset.unit === "g" || (button.dataset.unit === "cup" && food.cupGrams) || (button.dataset.unit === "tbsp" && food.tbspGrams) || (button.dataset.unit === "count" && food.countMeasure?.grams); button.disabled = !available; button.classList.toggle("active", button.dataset.unit === currentUnit); });
   $("#amount-input").value = currentAmount;
-  $("#amount-input").step = currentUnit === "g" ? "1" : currentUnit === "cup" ? "0.25" : "1";
+  $("#amount-input").step = "any";
+  $("#amount-input").max = Math.min(1000000, 1000000 / currentUnitGrams(food));
+  $("#amount-input").removeAttribute("aria-invalid");
+  $("#amount-error").hidden = true;
   $("#amount-unit-label").textContent = currentUnit === "g" ? "g" : currentUnit === "cup" ? (currentAmount === 1 ? "cup" : "cups") : currentUnit === "tbsp" ? "tbsp" : currentAmount === 1 ? food.countMeasure.unit : food.countMeasure.plural;
   $("#amount-equivalent").textContent = currentUnit === "g" ? "" : `[${Math.round(selectedGrams(food))} g]`;
   const grams = selectedGrams(food);
   $("#serving-size").textContent = measurementLabel(food, true);
   $("#calories").textContent = formatNumber(nutrientValue(food, "calories", grams), "");
   renderRows(food, grams);
+  const source = currentUnit === "cup" ? food.cupSource : currentUnit === "tbsp" ? food.tbspSource : currentUnit === "count" ? food.countMeasure?.source : null;
+  $("#measure-provenance").textContent = source ? `Measure: ${source}. For best accuracy, weigh the edible portion in grams.` : "Amounts refer to the edible portion. Weigh in grams for the most direct comparison.";
+  $("#add-to-menu").disabled = !Number.isFinite(grams) || grams <= 0 || grams > 1000000;
 }
 function renderLabel() {
   if (!selectedFood) return;
   const food = selectedFood;
   $("#detail-title").textContent = food.name;
-  $("#food-type").textContent = `${food.group} · ${food.sourceType === "branded" ? "Grocery product" : "Generic ingredient"} · ${titleState(food.state)}`;
+  $("#food-type").textContent = `${food.group} · ${food.sourceType === "branded" ? "Grocery product" : "USDA reference food"} · ${titleState(food.state)}`;
   $("#food-description").textContent = readableSourceDescription(food);
-  $("#food-source").textContent = food.source; $("#food-record").textContent = `FDC ${food.fdcId}`;
+  $("#food-source").textContent = food.sourceDataset || food.source;
+  $("#food-record").textContent = food.fdcId ? `FDC ${food.fdcId}` : food.sourceId || "Source record";
+  $("#food-record").href = food.sourceUrl || `https://fdc.nal.usda.gov/food-details/${food.fdcId}/nutrients`;
+  const portions = (food.portionOptions || []).filter(portion => Number.isFinite(portion.grams) && portion.grams > 0);
+  $("#source-portion-control").hidden = portions.length === 0;
+  $("#source-portion").innerHTML = '<option value="">Choose a portion…</option>' + portions.map(portion => `<option value="${portion.grams}">${html(portion.label)} (${portion.grams} g)</option>`).join("");
   resetMeasurement(food); renderMeasure();
 }
 function selectFood(food) { if (!food) return; selectedFood = food; renderResults(); renderLabel(); }
@@ -150,7 +163,7 @@ function setUnit(unit) {
   const grams = selectedGrams(selectedFood);
   currentUnit = unit;
   const unitGrams = currentUnitGrams(selectedFood);
-  currentAmount = unit === "g" ? grams : unit === "count" ? Math.max(1, Math.round(grams / unitGrams)) : grams / unitGrams;
+  currentAmount = Math.min(1000000 / unitGrams, unit === "g" ? grams : unit === "count" ? Math.max(1, Math.round(grams / unitGrams)) : grams / unitGrams);
   renderMeasure();
 }
 
@@ -160,9 +173,30 @@ document.querySelectorAll("[data-search]").forEach((button) => button.addEventLi
 document.querySelectorAll("[data-state]").forEach((button) => button.addEventListener("click", () => { selectedState = button.dataset.state; currentPage = 1; document.querySelectorAll("[data-state]").forEach((item) => item.classList.toggle("active", item === button)); renderResults(); }));
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => setUnit(button.dataset.unit)));
 $("#reset-measure").addEventListener("click", resetToDefaultMeasure);
-$("#amount-input").addEventListener("input", () => { const value = Number($("#amount-input").value); if (Number.isFinite(value) && value > 0) { currentAmount = value; renderMeasure(); } });
-$("#increase").addEventListener("click", () => { currentAmount += currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1; renderMeasure(); });
+$("#amount-input").addEventListener("input", () => {
+  const input = $("#amount-input"); const value = Number(input.value);
+  const grams = value * currentUnitGrams(selectedFood);
+  if (!input.validity.valid || !Number.isFinite(grams) || grams <= 0 || grams > 1000000) {
+    input.setAttribute("aria-invalid", "true");
+    $("#amount-error").textContent = "Enter a valid positive amount (up to 1,000,000 g). The label still shows the last valid amount.";
+    $("#amount-error").hidden = false; $("#add-to-menu").disabled = true; return;
+  }
+  currentAmount = value; renderMeasure();
+});
+$("#increase").addEventListener("click", () => { currentAmount = Math.min(1000000 / currentUnitGrams(selectedFood), currentAmount + (currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1)); renderMeasure(); });
 $("#decrease").addEventListener("click", () => { const step = currentUnit === "g" ? 5 : currentUnit === "cup" ? .25 : 1; currentAmount = Math.max(step, currentAmount - step); renderMeasure(); });
 document.querySelectorAll("[data-notice]").forEach((button) => button.addEventListener("click", () => showToast(button.dataset.notice)));
+$("#source-portion").addEventListener("change", event => {
+  if (!event.target.value) return;
+  currentUnit = "g"; currentAmount = Number(event.target.value); renderMeasure();
+  $("#measure-provenance").textContent = "USDA source portion selected. Weigh the edible portion for the most direct comparison.";
+  event.target.value = "";
+});
+$("#add-to-menu").addEventListener("click", () => {
+  const inputAmount = Number($("#amount-input").value);
+  if (!$("#amount-input").validity.valid || !Number.isFinite(inputAmount) || inputAmount <= 0) { showToast("Enter an amount greater than zero."); return; }
+  const grams = selectedGrams(selectedFood);
+  window.dispatchEvent(new CustomEvent("pantry:add-food", { detail: { foodId: selectedFood.id, grams } }));
+});
 $("#year").textContent = new Date().getFullYear();
 renderGroups(); renderResults(); renderLabel();

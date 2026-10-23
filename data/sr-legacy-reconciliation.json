@@ -1,0 +1,289 @@
+{
+  "source": "USDA FoodData Central SR Legacy CSV",
+  "archiveUrl": "https://fdc.nal.usda.gov/fdc-datasets/FoodData_Central_sr_legacy_food_csv_2018-04.zip",
+  "archiveSha256": "b80817294b8850530aaedf2e515c02593b1824f763a0ff356e5c2081643e6fd0",
+  "curatedSourceUrl": "https://api.nal.usda.gov/fdc/v1/foods",
+  "curatedSourceApiResponseSha256": "6397d0db70be733eeaeba4da459da46a74f545fa84143003bf5b09ab7f751b4c",
+  "curatedSourceSnapshotSha256": "852e3412bbfcd1ae3dac828e6190bee03b258322abc875e9dfa87e182f567827",
+  "sourceTableSha256": {
+    "food.csv": "de8b0390058db4f102368c9fbdfde144790b480ff4cb0507c0e060ef99805dee",
+    "food_nutrient.csv": "6d07e6fc062b09750c4d95112be5a5cdb56a2346efcfd0c96b7a7d705812d4bd",
+    "food_portion.csv": "6332e29da61e13f7bd950b759461af73303c76e8b0e64dc9df4e41d5347cf3d1",
+    "food_category.csv": "a8e05c18cf010d44303f2a02765637a21f9ad621f90b4f811ab4a4a436cfedd9",
+    "measure_unit.csv": "c1396ffebbe6337260fe4de6276aa91847c7f41ff31a4f69080764a5b36ba155",
+    "nutrient.csv": "466ab9d011094cc1ad8d939b246693988b56817c42d0e40a98820723695c6084"
+  },
+  "sourceFoodRows": 7793,
+  "archiveFoodIdsRepresented": 7793,
+  "standaloneSrLegacyRows": 7752,
+  "curatedRowsRetained": 105,
+  "curatedDuplicateRowsRemoved": 3,
+  "nutrientValuesReconciled": 221511,
+  "missingNutrientCellsReconciled": 51244,
+  "sourcePortionRowsReconciled": 14040,
+  "curatedNutrientValuesReconciled": 2686,
+  "curatedMissingNutrientCellsReconciled": 989,
+  "curatedSourcePortionRowsReconciled": 254,
+  "nutrientMappings": [
+    {
+      "nutrientId": 1003,
+      "name": "Protein",
+      "sourceUnit": "G",
+      "catalogKey": "protein",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1004,
+      "name": "Total lipid (fat)",
+      "sourceUnit": "G",
+      "catalogKey": "fat",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1005,
+      "name": "Carbohydrate, by difference",
+      "sourceUnit": "G",
+      "catalogKey": "carbs",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1008,
+      "name": "Energy",
+      "sourceUnit": "KCAL",
+      "catalogKey": "calories",
+      "catalogUnit": "kcal"
+    },
+    {
+      "nutrientId": 1079,
+      "name": "Fiber, total dietary",
+      "sourceUnit": "G",
+      "catalogKey": "fiber",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1087,
+      "name": "Calcium, Ca",
+      "sourceUnit": "MG",
+      "catalogKey": "calcium",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1089,
+      "name": "Iron, Fe",
+      "sourceUnit": "MG",
+      "catalogKey": "iron",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1090,
+      "name": "Magnesium, Mg",
+      "sourceUnit": "MG",
+      "catalogKey": "magnesium",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1091,
+      "name": "Phosphorus, P",
+      "sourceUnit": "MG",
+      "catalogKey": "phosphorus",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1092,
+      "name": "Potassium, K",
+      "sourceUnit": "MG",
+      "catalogKey": "potassium",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1093,
+      "name": "Sodium, Na",
+      "sourceUnit": "MG",
+      "catalogKey": "sodium",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1095,
+      "name": "Zinc, Zn",
+      "sourceUnit": "MG",
+      "catalogKey": "zinc",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1098,
+      "name": "Copper, Cu",
+      "sourceUnit": "MG",
+      "catalogKey": "copper",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1100,
+      "name": "Iodine, I",
+      "sourceUnit": "UG",
+      "catalogKey": "iodine",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1103,
+      "name": "Selenium, Se",
+      "sourceUnit": "UG",
+      "catalogKey": "selenium",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1106,
+      "name": "Vitamin A, RAE",
+      "sourceUnit": "UG",
+      "catalogKey": "vitaminA",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1109,
+      "name": "Vitamin E (alpha-tocopherol)",
+      "sourceUnit": "MG",
+      "catalogKey": "vitaminE",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1114,
+      "name": "Vitamin D (D2 + D3)",
+      "sourceUnit": "UG",
+      "catalogKey": "vitaminD",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1162,
+      "name": "Vitamin C, total ascorbic acid",
+      "sourceUnit": "MG",
+      "catalogKey": "vitaminC",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1165,
+      "name": "Thiamin",
+      "sourceUnit": "MG",
+      "catalogKey": "thiamin",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1166,
+      "name": "Riboflavin",
+      "sourceUnit": "MG",
+      "catalogKey": "riboflavin",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1167,
+      "name": "Niacin",
+      "sourceUnit": "MG",
+      "catalogKey": "niacin",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1170,
+      "name": "Pantothenic acid",
+      "sourceUnit": "MG",
+      "catalogKey": "pantothenicAcid",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1175,
+      "name": "Vitamin B-6",
+      "sourceUnit": "MG",
+      "catalogKey": "vitaminB6",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1176,
+      "name": "Biotin",
+      "sourceUnit": "UG",
+      "catalogKey": "biotin",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1177,
+      "name": "Folate, total",
+      "sourceUnit": "UG",
+      "catalogKey": "folate",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1178,
+      "name": "Vitamin B-12",
+      "sourceUnit": "UG",
+      "catalogKey": "vitaminB12",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1180,
+      "name": "Choline, total",
+      "sourceUnit": "MG",
+      "catalogKey": "choline",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1185,
+      "name": "Vitamin K (phylloquinone)",
+      "sourceUnit": "UG",
+      "catalogKey": "vitaminK",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1190,
+      "name": "Folate, DFE",
+      "sourceUnit": "UG",
+      "catalogKey": "folateDFE",
+      "catalogUnit": "mcg"
+    },
+    {
+      "nutrientId": 1235,
+      "name": "Sugars, added",
+      "sourceUnit": "G",
+      "catalogKey": "addedSugars",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1253,
+      "name": "Cholesterol",
+      "sourceUnit": "MG",
+      "catalogKey": "cholesterol",
+      "catalogUnit": "mg"
+    },
+    {
+      "nutrientId": 1257,
+      "name": "Fatty acids, total trans",
+      "sourceUnit": "G",
+      "catalogKey": "transFat",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 1258,
+      "name": "Fatty acids, total saturated",
+      "sourceUnit": "G",
+      "catalogKey": "satFat",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 2000,
+      "name": "Sugars, Total",
+      "sourceUnit": "G",
+      "catalogKey": "sugars",
+      "catalogUnit": "g"
+    },
+    {
+      "nutrientId": 2047,
+      "name": "Energy (Atwater General Factors)",
+      "sourceUnit": "KCAL",
+      "catalogKey": "calories",
+      "catalogUnit": "kcal"
+    },
+    {
+      "nutrientId": 2048,
+      "name": "Energy (Atwater Specific Factors)",
+      "sourceUnit": "KCAL",
+      "catalogKey": "calories",
+      "catalogUnit": "kcal"
+    }
+  ],
+  "verification": "passed"
+}

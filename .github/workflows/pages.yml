@@ -24,6 +24,18 @@ jobs:
       - name: Check out the site
         uses: actions/checkout@v6
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Validate calculations and catalog
+        run: |
+          node --test tests/*.test.cjs
+          node scripts/audit-catalog.mjs
+          node --check app.js
+          node --check menu.js
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 

@@ -1,0 +1,234 @@
+{
+  "auditDate": "2026-10-23",
+  "scope": "The 108 catalog rows committed before the expansion work, audited from HEAD:data/catalog-data.js.",
+  "sources": [
+    "The official USDA FoodData Central API, batch /foods lookup of the 105 distinct FDC IDs present in the 108 rows, accessed 2026-10-23 using the public DEMO_KEY.",
+    "The catalog generator and current app source, read at the same baseline commit."
+  ],
+  "sourceIdentity": {
+    "catalogRows": 108,
+    "uniqueFdcIds": 105,
+    "apiRecordsReturned": 105,
+    "dataTypes": {"Foundation":37,"SR Legacy":41,"Survey (FNDDS)":27},
+    "missingFdcIds": 0,
+    "sourceDescriptionExactMatches": 108,
+    "sourceDescriptionMismatches": 0,
+    "duplicateFdcIds": [
+      {
+        "fdcId": 174256,
+        "rowIds": ["generic-whole-moong-beans", "generic-moong-dal-split-mung-beans"],
+        "apiDescription": "Mung beans, mature seeds, raw",
+        "recommendation": "Keep one canonical source-backed item or represent the split form as a separately verified record/alias; the source describes mature seeds, not a split product."
+      },
+      {
+        "fdcId": 2644282,
+        "rowIds": ["generic-chickpeas-dry", "generic-chana-dal-split-chickpeas", "generic-kala-chana-black-chickpeas"],
+        "apiDescription": "Chickpeas, (garbanzo beans, bengal gram), dry",
+        "recommendation": "Keep the canonical dry chickpea record. The same source record does not establish the split chana-dal form or the kala-chana cultivar; add those only with verified source records."
+      }
+    ]
+  },
+  "nutrientAudit": {
+    "units": "All stored nutrient unit families match their nutrient keys. The USDA API spells micrograms as µg; the catalog uses mcg, which is equivalent. No numeric values were negative, non-finite, or stored with null values.",
+    "values": "The official API batch contained 2,601 comparable catalog nutrient cells. 2,569 agree at the catalog's stored precision; 32 differ in the final reported digits in this current API snapshot. No broad scale or unit error pattern was found. The exact differences can be emitted by scripts/audit-catalog.mjs with --fdc-json. Refresh from one fixed source release if values are regenerated; do not hand-edit these small differences independently.",
+    "folate": {
+      "nutrient1177": "Folate, total (µg)",
+      "nutrient1190": "Folate, DFE (µg)",
+      "rowsWith1177Value": 80,
+      "rowsWith1177ExplicitZero": 6,
+      "rowsWith1190Value": 68,
+      "rowsWith1190ExplicitZero": 4,
+      "finding": "The baseline generator maps only nutrient 1190 to the generic `folate` key. Therefore populated catalog folate values are DFE; rows with only nutrient 1177 omit folate, and the key does not say which chemical quantity it contains.",
+      "examplesOf1177OnlyOmitted": [
+        {"id":"generic-rolled-oats","fdcId":2346396,"nutrient1177":32.03},
+        {"id":"generic-whole-wheat-flour","fdcId":790085,"nutrient1177":39},
+        {"id":"generic-kale-raw","fdcId":323505,"nutrient1177":62},
+        {"id":"generic-broccoli-raw","fdcId":747447,"nutrient1177":65},
+        {"id":"generic-cauliflower-raw","fdcId":2685573,"nutrient1177":97},
+        {"id":"generic-squash-summer-zucchini-includes-skin-raw","fdcId":2685568,"nutrient1177":71},
+        {"id":"generic-kiwifruit","fdcId":327046,"nutrient1177":26},
+        {"id":"generic-cheese-cheddar","fdcId":328637,"nutrient1177":21},
+        {"id":"generic-flaxseed","fdcId":2262075,"nutrient1177":41.45},
+        {"id":"generic-oat-milk-unsweetened","fdcId":2257046,"nutrient1177":0}
+      ],
+      "recommendation": "Store total folate and DFE under distinct keys. Preserve stored values as DFE, populate total only from nutrient 1177, and leave either field absent when its source nutrient is absent."
+    },
+    "missingVsZero": {
+      "finding": "The baseline contains no explicit null nutrient values. Missing nutrient keys and explicit zero-valued nutrient records are distinct.",
+      "appBehavior": "The app displays an absent nutrient as an em dash and a measured zero as 0; that distinction is appropriate."
+    }
+  },
+  "householdMeasures": {
+    "cupGrams": {"total":95,"usdaSource":34,"curatedDefault":61},
+    "tbspGrams": {"total":11,"usdaSource":2,"curatedDefault":9},
+    "countMeasures": {"total":33,"usdaSourceLabel":25,"commonHouseholdReference":8},
+    "finding": "The file labels curated gram weights as curated, but those weights have no attached citation or preparation detail in the record. Values labelled USDA were sourced from FDC portions by the generator; some portions describe a different state or preparation than the catalog row.",
+    "specificIssues": [
+      {
+        "id":"generic-quinoa",
+        "fdcId":2708399,
+        "state":"dry",
+        "sourceDescription":"Quinoa, NS as to fat",
+        "sourcePortion":{"label":"1 cup, cooked","grams":170},
+        "finding":"The USDA cup portion is explicitly cooked while the catalog says dry. This also is an FNDDS Survey record; its portion and nutrient profile are not a dry-quinoa reference.",
+        "recommendation":"Replace with an exact dry-quinoa source record; do not use the cooked cup weight for a dry record."
+      },
+      {
+        "id":"generic-rajma-kidney-beans",
+        "fdcId":2707379,
+        "displayName":"Rajma (kidney beans)",
+        "state":"dry",
+        "apiDescription":"Kidney beans, NFS",
+        "apiDataType":"Survey (FNDDS)",
+        "apiMacrosPer100g":{"protein":8.06,"carbs":21.2,"calories":177},
+        "evidence":"The source is an FNDDS generic item, and its nutrient density is consistent with cooked kidney beans, not dry mature seeds (the catalog's stated state). The source does not establish a dry preparation.",
+        "recommendation":"Replace with a verified raw/dry kidney-bean record or relabel this cooked item and update portion/default state metadata."
+      },
+      {
+        "id":"generic-whole-masoor-brown-lentils",
+        "fdcId":172420,
+        "displayName":"Whole masoor (brown lentils)",
+        "apiDescription":"Lentils, raw",
+        "evidence":"This source does not specify brown lentils or whole masoor; the display name adds a variety claim absent from the record.",
+        "recommendation":"Use a verified brown-lentil source or rename to generic raw lentils."
+      },
+      {
+        "id":"generic-mushrooms-white-raw",
+        "fdcId":2709793,
+        "displayName":"Mushrooms, white, raw",
+        "apiDescription":"Mushrooms, raw",
+        "evidence":"The source does not identify white mushrooms.",
+        "recommendation":"Remove white from the title/aliases or select a source specifically for white mushrooms."
+      },
+      {
+        "id":"generic-cucumber-with-peel-raw",
+        "countMeasureGrams":200,
+        "sourceDescription":"Cucumber, raw",
+        "sourcePortion":{"label":"1 regular","grams":200},
+        "finding":"The source portion supports 200 g for one regular cucumber, but the source description does not establish peel status.",
+        "recommendation":"Keep the 200 g count only if the broad cucumber item is intended; drop the with-peel claim unless verified."
+      }
+    ],
+    "recommendation":"Retain household weights only with explicit source and matching state/preparation. Clearly mark curated estimates and review each separately; do not treat a gram match as proof that a measure label is correct."
+  },
+  "dailyValues": {
+    "finding":"The baseline app uses standard US FDA adult Daily Values (e.g. fat 78 g, sodium 2,300 mg, fiber 28 g, folate 400 µg DFE) and rounds percent values to whole percentages. They are fixed label references, not personalized targets. Niacin's 16 mg DV is expressed as niacin equivalents (NE); the catalog stores niacin mg, not NE, so a niacin percent DV is not supported without the appropriate source quantity.",
+    "recommendation":"Keep DV calculations restricted to nutrients stored in the same unit and chemical basis as the current FDA DV. Label the displayed percentages as general FDA Daily Values and omit niacin %DV unless NE data is sourced."
+  },
+  "suspectIdentityRows": [
+    {
+      "id":"generic-turkey-retail-parts-breast-meat-only-raw",
+      "fdcId":171093,
+      "displayName":"Turkey, retail parts, breast, meat only, raw",
+      "apiDescription":"Turkey, all classes, breast, meat and skin, raw",
+      "evidence":"The checked USDA API description explicitly includes skin; the display title explicitly excludes it.",
+      "recommendation":"Rename to match the actual USDA source description, or select a verified meat-only source record; strip meat-only aliases unless retained by a matching source."
+    },
+    {
+      "id":"generic-pork-fresh-loin-tenderloin-separable-lean-only-raw",
+      "fdcId":2646168,
+      "displayName":"Pork, fresh, loin, tenderloin, separable lean only, raw",
+      "apiDescription":"Pork, loin, boneless, raw",
+      "evidence":"The source specifies boneless loin; it does not identify tenderloin or separable lean-only meat.",
+      "recommendation":"Use a verified tenderloin lean-only record, or rename to the source's boneless pork loin identity and remove unsupported qualifiers."
+    },
+    {
+      "id":"generic-fish-salmon-atlantic-wild-raw",
+      "fdcId":2706284,
+      "displayName":"Fish, salmon, Atlantic, wild, raw",
+      "apiDescription":"Fish, salmon, raw",
+      "evidence":"The source does not specify Atlantic species or wild-caught status.",
+      "recommendation":"Rename to generic raw salmon or select a source record that verifies species and caught/farmed status."
+    },
+    {
+      "id":"generic-fish-tuna-light-fresh-raw",
+      "fdcId":2706308,
+      "displayName":"Fish, tuna, light, fresh, raw",
+      "apiDescription":"Fish, tuna, raw",
+      "evidence":"The source does not specify light tuna or fresh status.",
+      "recommendation":"Rename to generic raw tuna or source a verified light-tuna record."
+    },
+    {
+      "id":"generic-cucumber-with-peel-raw",
+      "fdcId":2709784,
+      "displayName":"Cucumber, with peel, raw",
+      "apiDescription":"Cucumber, raw",
+      "evidence":"The source description does not specify peel status.",
+      "recommendation":"Remove the with-peel qualifier unless a source record verifies it."
+    },
+    {
+      "id":"generic-flaxseed",
+      "fdcId":2262075,
+      "displayName":"Flaxseed",
+      "apiDescription":"Flaxseed, ground",
+      "evidence":"The USDA record explicitly refers to ground flaxseed.",
+      "recommendation":"Rename to ground flaxseed and avoid an unqualified whole-seed alias."
+    },
+    {
+      "id":"generic-tofu",
+      "fdcId":172475,
+      "displayName":"Tofu",
+      "apiDescription":"Tofu, raw, firm, prepared with calcium sulfate",
+      "evidence":"Firm tofu prepared with calcium sulfate is a specific formulation; an unqualified tofu title suggests tofu generally.",
+      "recommendation":"Name the firm/calcium-sulfate variety or choose a broader source record."
+    },
+    {
+      "id":"generic-canned-black-beans",
+      "fdcId":2644285,
+      "displayName":"Canned black beans",
+      "apiDescription":"Beans, black, canned, sodium added, drained and rinsed",
+      "evidence":"The source nutrient values apply to sodium-added beans after draining and rinsing.",
+      "recommendation":"Expose the drained/rinsed and sodium-added preparation so users do not mistake this for all canned black beans."
+    },
+    {
+      "id":"generic-canned-chickpeas",
+      "fdcId":2644288,
+      "displayName":"Canned chickpeas",
+      "apiDescription":"Chickpeas (garbanzo beans, bengal gram), canned, sodium added, drained and rinsed",
+      "evidence":"The source nutrient values apply to sodium-added chickpeas after draining and rinsing.",
+      "recommendation":"Expose the drained/rinsed and sodium-added preparation in the item name/details."
+    },
+    {
+      "id":"generic-canned-peas",
+      "fdcId":2644291,
+      "displayName":"Canned peas",
+      "apiDescription":"Peas, green, sweet, canned, sodium added, sugar added, drained and rinsed",
+      "evidence":"The source is sweet peas with both sodium and sugar added, drained and rinsed.",
+      "recommendation":"Represent the added salt/sugar and drained/rinsed preparation in the name/details."
+    },
+      {
+        "id":"generic-canned-corn",
+        "fdcId":168397,
+        "displayName":"Canned corn",
+        "apiDescription":"Corn, sweet, yellow, canned, drained solids, rinsed with tap water",
+        "evidence":"The source is sweet yellow corn after draining and rinsing; the broad title hides this preparation.",
+        "recommendation":"Expose the sweet/yellow type and drained/rinsed preparation in the name/details."
+      },
+      {
+        "id":"generic-canned-tomatoes",
+        "fdcId":333281,
+        "displayName":"Canned tomatoes",
+        "apiDescription":"Tomatoes, canned, red, ripe, diced",
+        "evidence":"The chosen source is diced red ripe tomatoes.",
+        "recommendation":"Add diced to the canonical name/details."
+      },
+      {
+        "id":"generic-canned-green-beans",
+        "fdcId":321611,
+        "displayName":"Canned green beans",
+        "apiDescription":"Beans, snap, green, canned, regular pack, drained solids",
+        "evidence":"The source is regular-pack drained solids, a specific preparation.",
+        "recommendation":"Expose regular pack/drained-solids preparation in the name/details."
+      },
+    {
+      "id":"generic-chicken-broilers-or-fryers-breast-meat-only-raw",
+      "fdcId":2646170,
+      "displayName":"Chicken, broilers or fryers, breast, meat only, raw",
+      "apiDescription":"Chicken, breast, boneless, skinless, raw",
+      "evidence":"The source verifies boneless and skinless but does not say broiler/fryer class.",
+      "recommendation":"Use the source's terms in the display name and retain the meat-only concept only as an accurate equivalent."
+    }
+  ],
+  "script": "scripts/audit-catalog.mjs",
+  "scriptUsage": "For the current catalog: node scripts/audit-catalog.mjs --out /tmp/catalog-audit.json. For a baseline comparison, pass --catalog <baseline-catalog.js> --fdc-json <USDA API foods array.json> --legacy-baseline --out <report.json>."
+}
