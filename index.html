@@ -11,10 +11,9 @@
     <meta property="og:site_name" content="Pantry Index" />
     <meta name="twitter:card" content="summary" />
     <title>Pantry Index | Nutrition Facts for Everyday Ingredients</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="public/fonts.css" />
     <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Pantry Index","description":"Searchable nutrition facts for everyday raw, dry, canned, and frozen ingredients.","potentialAction":{"@type":"SearchAction","target":"index.html?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
   </head>
   <body>
@@ -32,13 +31,14 @@
         <form class="search-box" id="lookup" role="search">
           <label class="sr-only" for="food-search">Search foods and products</label>
           <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="food-search" name="q" autocomplete="off" placeholder="Try “white rice” or “black beans”" aria-controls="results-grid" />
-          <button type="submit">Search</button>
+          <input disabled id="food-search" name="q" autocomplete="off" placeholder="Try “white rice” or “black beans”" aria-controls="results-grid" />
+          <button type="submit" disabled>Search</button>
         </form>
-        <div class="search-hints" aria-label="Popular searches"><span>Popular:</span><button type="button" data-search="white rice">White rice</button><button type="button" data-search="lentils">Lentils</button><button type="button" data-search="spinach">Spinach</button><button type="button" data-search="salmon">Salmon</button><button type="button" data-search="oats">Oats</button></div>
+        <p id="catalog-loading" role="status">Loading the food catalog…</p>
+        <div class="search-hints" aria-label="Popular searches"><span>Popular:</span><button type="button" disabled data-search="white rice">White rice</button><button type="button" disabled data-search="lentils">Lentils</button><button type="button" disabled data-search="spinach">Spinach</button><button type="button" disabled data-search="salmon">Salmon</button><button type="button" disabled data-search="oats">Oats</button></div>
       </section>
 
-      <section class="browse-section" id="browse" aria-labelledby="browse-title">
+      <section class="browse-section" id="browse" tabindex="-1" aria-labelledby="browse-title">
         <div class="section-heading catalog-heading">
           <div class="heading-primary"><p class="eyebrow">The catalog</p><h2 id="browse-title">Browse foods.</h2></div>
 
@@ -46,7 +46,7 @@
         <div class="catalog-workspace">
 
           <div class="results-area" id="food-browser">
-            <div class="group-select-control"><label for="group-select">Food group</label><select id="group-select"><option value="all">All foods</option></select></div>
+            <div class="group-select-control"><label for="group-select">Food group</label><select id="group-select" disabled><option value="all">All foods</option></select></div>
             <div class="catalog-search"><label for="catalog-search">Search this catalog</label><div class="catalog-search-field"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Search foods…" autocomplete="off" aria-controls="results-grid" /><span class="catalog-search-count" id="catalog-search-count"></span></div></div>
             <div class="browse-toolbar"><button class="quiet-button" id="reset-filters" type="button" hidden>Reset filters</button><p class="result-count" id="result-count" role="status"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
             <div class="results-grid" id="results-grid" role="region" aria-label="Matching foods" tabindex="0"></div>
@@ -61,7 +61,7 @@
                 <div class="measure-heading"><label for="amount-input">Amount to add</label><button type="button" class="measure-reset" id="reset-measure" aria-label="Reset to 100 grams" title="Reset amount">↺</button></div>
                 <div class="quantity-add-row">
                   <div class="measure-row"><button type="button" id="decrease" aria-label="Decrease amount">−</button><div class="measure-value"><input id="amount-input" type="number" min="0.01" step="any" max="1000000" value="100" inputmode="decimal" aria-label="Amount" aria-describedby="amount-error" /><span id="amount-unit-label">g</span><span id="amount-equivalent"></span></div><button type="button" id="increase" aria-label="Increase amount">+</button></div>
-                  <button class="primary-button add-menu-button" id="add-to-menu" type="button">+ Add to my day</button>
+                  <button class="primary-button add-menu-button" id="add-to-menu" type="button" disabled>+ Add to my day</button>
                 </div>
                 <p id="amount-error" role="status" class="input-error" hidden></p>
                 <div class="measure-options" role="group" aria-label="Choose amount unit"><button class="active" type="button" data-unit="g">grams</button><button type="button" data-unit="cup">cups</button><button type="button" data-unit="tbsp">tbsp</button><button type="button" data-unit="count" hidden>count</button></div>

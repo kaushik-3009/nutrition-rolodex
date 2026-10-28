@@ -73,6 +73,8 @@ jobs:
           python tests/browser_smoke.py
           python tests/menu_walkthrough.py http://127.0.0.1:8000
           python tests/browser_walkthrough.py
+          python tests/audit_walkthrough.py
+          python tests/cross_browser.py
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

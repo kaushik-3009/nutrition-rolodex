@@ -1,5 +1,4 @@
 const catalog = window.PANTRY_CATALOG || [];
-const groupOrder = ["Grains", "Pulses", "Vegetables", "Fruit", "Proteins", "Seafood", "Dairy & eggs", "Milk & alternatives", "Nuts & seeds", "Oils", "Canned", "Frozen", "Walmart / Great Value"];
 const stateLabels = { raw: "Raw", dry: "Dry / uncooked", canned: "Canned", frozen: "Frozen", cooked: "Cooked", other: "Other / prepared", "as sold": "Preparation not specified" };
 const dailyValues = { fat: 78, satFat: 20, cholesterol: 300, sodium: 2300, carbs: 275, fiber: 28, protein: 50, calcium: 1300, iron: 18, magnesium: 420, phosphorus: 1250, potassium: 4700, zinc: 11, copper: .9, selenium: 55, vitaminA: 900, vitaminC: 90, vitaminD: 20, vitaminE: 15, vitaminK: 120, thiamin: 1.2, riboflavin: 1.3, niacin: 16, vitaminB6: 1.7, folateDFE: 400, iodine: 150, pantothenicAcid: 5, biotin: 30, addedSugars: 50, vitaminB12: 2.4, choline: 550 };
 const nutrientRows = [
@@ -16,9 +15,10 @@ let searchTerm = "";
 let currentUnit = "g";
 let currentAmount = selectedFood?.servingGrams || 100;
 let currentPage = 1;
+let activePortion = null;
 const pageSize = 12;
 const html = value => String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
-const normalizeSearch = value => value.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
+const normalizeSearch = value => value.toLowerCase().normalize("NFKD").replace(/\p{M}/gu, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const searchableFoods = new Map(catalog.map(food => [food.id, normalizeSearch([food.name, food.group, food.state, ...(food.aliases || []), food.sourceDescription].join(" ")).split(/\s+/)]));
 const $ = (selector) => document.querySelector(selector);
 
@@ -105,6 +105,7 @@ function focusSearch() {
 function filteredFoods() {
   const query = normalizeSearch(searchTerm);
   const terms = query.split(/\s+/).filter(Boolean);
+  if (searchTerm.trim() && !terms.length) return [];
   return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.some(word => word.startsWith(term)))) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
 }
 function renderPagination(totalItems) {
@@ -117,12 +118,12 @@ function renderPagination(totalItems) {
 }
 function renderResults() {
   const foods = filteredFoods();
-  const nextSelection = foods.find(food => food.id === selectedFood?.id) || foods[0] || null;
-  const selectionChanged = nextSelection?.id !== selectedFood?.id;
-  selectedFood = nextSelection;
   const totalPages = Math.ceil(foods.length / pageSize);
   currentPage = totalPages ? Math.min(currentPage, totalPages) : 1;
   const pageFoods = foods.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  const nextSelection = pageFoods.find(food => food.id === selectedFood?.id) || pageFoods[0] || null;
+  const selectionChanged = nextSelection?.id !== selectedFood?.id;
+  selectedFood = nextSelection;
   $("#result-count").textContent = `${foods.length} ${foods.length === 1 ? "entry" : "entries"}${searchTerm ? ` matching “${searchTerm}”` : " in the catalog"}${totalPages > 1 ? ` · page ${currentPage} of ${totalPages}` : ""}`;
   $("#catalog-search-count").textContent = searchTerm ? `${foods.length} found` : `${catalog.length} foods`;
   $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" aria-pressed="${selectedFood?.id === food.id}" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(food.group)}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
@@ -157,8 +158,9 @@ function renderMeasure({ preserveInput = false } = {}) {
   $("#serving-size").textContent = measurementLabel(food, true);
   $("#calories").textContent = formatNumber(nutrientValue(food, "calories", grams), "");
   renderRows(food, grams);
+  if (activePortion && Math.abs(grams - activePortion.grams) > 1e-9) { activePortion = null; $("#source-portion").value = ""; }
   const source = currentUnit === "cup" ? food.cupSource : currentUnit === "tbsp" ? food.tbspSource : currentUnit === "count" ? food.countMeasure?.source : null;
-  $("#measure-provenance").textContent = source ? `Measure: ${source}. For best accuracy, weigh the edible portion in grams.` : "Amounts refer to the edible portion. Weigh in grams for the most direct comparison.";
+  $("#measure-provenance").textContent = activePortion ? `USDA reference portion: ${activePortion.label}. Weigh the edible portion for the most direct comparison.` : source ? `Measure: ${source}. For best accuracy, weigh the edible portion in grams.` : "Amounts refer to the edible portion. Weigh in grams for the most direct comparison.";
   $("#add-to-menu").disabled = !Number.isFinite(grams) || grams <= 0 || grams > 1000000;
 }
 function renderLabel() {
@@ -170,6 +172,7 @@ function renderLabel() {
   $("#add-to-menu").disabled = !hasSelection;
   if (!selectedFood) return;
   const food = selectedFood;
+  activePortion = null;
   $("#detail-title").textContent = food.name;
   $("#food-type").textContent = `${food.group} · ${food.sourceType === "branded" ? "Grocery product" : "USDA reference food"} · ${titleState(food.state)}`;
   $("#food-description").textContent = readableSourceDescription(food);
@@ -189,7 +192,7 @@ function selectFood(food) {
   if (window.matchMedia("(max-width: 780px)").matches || pickerBounds.top < 72 || pickerBounds.top > window.innerHeight - 200) $("#detail").scrollIntoView({ behavior: "instant", block: "start" });
   $("#amount-input").focus({ preventScroll: true }); $("#amount-input").select();
 }
-function resetToDefaultMeasure() { if (!selectedFood) return; resetMeasurement(selectedFood); renderMeasure(); }
+function resetToDefaultMeasure() { if (!selectedFood) return; activePortion = null; $("#source-portion").value = ""; resetMeasurement(selectedFood); renderMeasure(); }
 function setUnit(unit) {
   const grams = selectedGrams(selectedFood);
   currentUnit = unit;
@@ -206,7 +209,7 @@ $("#catalog-search").addEventListener("input", () => {
   searchTerm = $("#catalog-search").value.trim(); $("#food-search").value = searchTerm; currentPage = 1; renderResults(); $("#results-grid").scrollTop = 0;
 });
 $("#catalog-search").addEventListener("keydown", event => {
-  if (event.key === "Enter") { event.preventDefault(); const first = filteredFoods()[0]; if (first) selectFood(first); }
+  if (event.key === "Enter") { event.preventDefault(); const first = filteredFoods()[(currentPage - 1) * pageSize]; if (first) selectFood(first); }
   if (event.key === "Escape") { $("#catalog-search").value = ""; $("#catalog-search").dispatchEvent(new Event("input")); }
 });
 document.querySelectorAll("[data-search]").forEach(button => button.addEventListener("click", () => { $("#food-search").value = button.dataset.search; $("#lookup").requestSubmit(); }));
@@ -233,9 +236,8 @@ $("#decrease").addEventListener("click", () => { const step = currentUnit === "g
 document.querySelectorAll("[data-notice]").forEach((button) => button.addEventListener("click", () => showToast(button.dataset.notice)));
 $("#source-portion").addEventListener("change", event => {
   if (!event.target.value) return;
-  currentUnit = "g"; currentAmount = Number(event.target.value); renderMeasure();
-  $("#measure-provenance").textContent = "USDA source portion selected. Weigh the edible portion for the most direct comparison.";
-  event.target.value = "";
+  activePortion = { grams: Number(event.target.value), label: event.target.selectedOptions[0].textContent };
+  currentUnit = "g"; currentAmount = activePortion.grams; renderMeasure();
 });
 $("#add-to-menu").addEventListener("click", () => {
   if (!selectedFood) return;
@@ -249,3 +251,10 @@ renderGroups(); syncFilters();
 const initialQuery = new URLSearchParams(window.location.search).get("q");
 if (initialQuery) { searchTerm = initialQuery; $("#catalog-search").value = initialQuery; $("#food-search").value = initialQuery; }
 renderResults(); renderLabel();
+
+if (catalog.length) {
+  document.querySelectorAll("#food-search, #lookup button, [data-search], #group-select").forEach(control => { control.disabled = false; });
+  $("#catalog-loading").hidden = true;
+} else {
+  $("#catalog-loading").textContent = "The food catalog could not load. Reload the page to try again.";
+}

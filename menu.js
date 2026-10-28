@@ -10,6 +10,7 @@
   let entries = [];
   let previous = null;
   let editSession = null;
+  const invalidDrafts = new Map();
   let storageMessage = "Saved in this browser on this device. This is a reusable day plan, not a dated food log.";
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
@@ -29,6 +30,25 @@
     } catch { storageMessage = "Browser storage is unavailable. Download your day to keep a copy; it may be lost on reload."; }
     find("#menu-storage-status").textContent = storageMessage;
   }
+  window.addEventListener("storage", event => {
+    if (event.key !== storageKey && event.key !== null) return;
+    try {
+      const saved = event.newValue === null ? null : JSON.parse(event.newValue);
+      if (saved !== null && (saved.version !== 1 || !Array.isArray(saved.entries))) throw new Error("Unrecognized saved day");
+      const source = saved?.entries || [];
+      entries = source.filter(entry => entry && byId.has(entry.foodId) && Number.isFinite(entry.grams) && entry.grams > 0 && entry.grams <= maxGrams).slice(0, 500).map(entry => ({ foodId: entry.foodId, grams: entry.grams }));
+      storageMessage = entries.length === source.length
+        ? "Updated from another tab. Saved in this browser on this device."
+        : "Some saved foods were unavailable or invalid and were left out. Review your day before using the totals.";
+    } catch {
+      entries = [];
+      storageMessage = "The saved day changed in another tab but could not be read. Reload to review it.";
+    }
+    previous = null;
+    editSession = null;
+    invalidDrafts.clear();
+    render();
+  });
   function checkpoint() {
     previous = entries.map(entry => ({ ...entry }));
     find("#undo-menu").hidden = false;
@@ -37,6 +57,8 @@
   function commitInput(input) {
     const grams = Number(input.value);
     if (!input.validity.valid || !Number.isFinite(grams) || grams <= 0 || grams > maxGrams) {
+      const index = Number(input.dataset.menuGrams);
+      if (entries[index]) invalidDrafts.set(entries[index].foodId, input.value);
       input.setCustomValidity("Enter a gram amount greater than zero, up to 1,000,000.");
       input.setAttribute("aria-invalid", "true");
       find("#menu-input-status").hidden = false;
@@ -46,6 +68,7 @@
     input.setCustomValidity(""); input.removeAttribute("aria-invalid");
     const index = Number(input.dataset.menuGrams);
     if (!entries[index]) return false;
+    invalidDrafts.delete(entries[index].foodId);
     if (grams !== entries[index].grams) {
       if (editSession?.input === input && !editSession.checkpointed) {
         if (input.value !== editSession.initial) checkpoint();
@@ -86,10 +109,11 @@
     }).join("");
   }
   function render() {
-    find("#menu-input-status").hidden = true;
+    find("#menu-input-status").hidden = invalidDrafts.size === 0;
     find("#menu-items").innerHTML = entries.map((entry, index) => {
       const food = byId.get(entry.foodId);
-      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape(food.group)} · ${escape(titleState(food.state))}</p></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${entry.grams}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
+      const draft = invalidDrafts.get(entry.foodId);
+      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape(food.group)} · ${escape(titleState(food.state))}</p></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${draft === undefined ? entry.grams : escape(draft)}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" ${draft === undefined ? "" : 'aria-invalid="true"'} required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
     }).join("");
     find("#menu-empty").hidden = entries.length > 0;
     find("#clear-menu").disabled = entries.length === 0;
@@ -137,11 +161,11 @@
     const button = event.target.closest("[data-remove]");
     if (!button) return;
     const index = Number(button.dataset.remove);
-    checkpoint(); entries.splice(index, 1); save(); render();
+    checkpoint(); invalidDrafts.delete(entries[index]?.foodId); entries.splice(index, 1); save(); render();
     (find(`[data-remove="${Math.min(index, entries.length - 1)}"]`) || find("#menu-title")).focus();
   });
-  find("#clear-menu").addEventListener("click", () => { checkpoint(); entries = []; save(); render(); find("#undo-menu").focus(); });
-  find("#undo-menu").addEventListener("click", () => { if (previous === null) return; entries = previous; previous = null; save(); render(); (entries.length ? find("#clear-menu") : find("#menu-title")).focus(); });
+  find("#clear-menu").addEventListener("click", () => { checkpoint(); entries = []; invalidDrafts.clear(); save(); render(); find("#undo-menu").focus(); });
+  find("#undo-menu").addEventListener("click", () => { if (previous === null) return; entries = previous; previous = null; invalidDrafts.clear(); save(); render(); (entries.length ? find("#clear-menu") : find("#menu-title")).focus(); });
   find("#export-menu").addEventListener("click", () => {
     const invalidDraft = find('#menu-items [data-menu-grams]:invalid');
     if (invalidDraft) {
