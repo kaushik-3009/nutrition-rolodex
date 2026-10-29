@@ -69,7 +69,7 @@ html { scroll-padding-top:90px; }
 #food-browser { scroll-margin-top:90px; }
 .group-select-control { margin-bottom:.75rem; }.group-select-control label { display:block; margin-bottom:.3rem; font-size:.8rem; font-weight:600; }
 .group-select-control select { width:100%; min-height:44px; padding:.6rem; border:1px solid var(--line); border-radius:.5rem; color:var(--ink); background:var(--cream); font-size:.85rem; }
-.catalog-search label { font-size:.72rem; color:#526159; }.catalog-search-field input { min-height:36px; font-size:1rem; }.catalog-search-field:focus-within { outline:2px solid var(--leaf); outline-offset:4px; border-radius:2px; }
+.catalog-search label { font-size:.72rem; color:#526159; }.catalog-search-field input { min-height:36px; font-size:1rem; }.catalog-search-field:has(input:focus-visible) { border-radius:2px; }
 .browse-toolbar { display:flex; flex-wrap:wrap; gap:.6rem; align-items:center; }.result-count { flex:1 1 100%; font-size:.75rem; }.state-filters { justify-content:start; }
 .state-filters button { min-height:44px; padding:.5rem .65rem; font-size:.75rem; }
 .results-grid { display:flex; flex-direction:column; max-height:560px; overflow-y:auto; overscroll-behavior-y:contain; padding:.2rem .4rem .4rem .2rem; gap:.5rem; scrollbar-gutter:stable; }
@@ -105,10 +105,10 @@ html { scroll-padding-top:90px; }
 @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition:none !important; } }
 
 /* Review refinements: preserve focus visibility and readable wrapping. */
-.search-box:focus-within { outline:3px solid var(--leaf); outline-offset:3px; }
+.search-box:has(input:focus-visible) { border-color:var(--leaf); }
 .search-box input:focus-visible,.measure-value input:focus-visible { outline:2px solid var(--leaf); outline-offset:2px; border-radius:2px; }
 .measure-value:focus-within { position:relative; z-index:1; }
-.measure-row:focus-within { outline:2px solid var(--leaf); outline-offset:2px; }
+.measure-row:has(input:focus-visible) { border-color:var(--leaf); }
 .nutrients>div { align-items:baseline; flex-wrap:wrap; }
 .nutrients dt { min-width:0; flex:1 1 60%; overflow-wrap:anywhere; }
 .nutrients dd { flex:0 0 auto; margin-left:auto; white-space:nowrap; }
@@ -150,3 +150,12 @@ html { scroll-padding-top:90px; }
 .menu-workspace:has(.empty-day-preview:not([hidden])) { grid-template-columns:1fr; gap:1.25rem; }
 .empty-day-preview { max-width:720px; }
 @media (max-width:440px) { .remove-menu { order:3; } }
+
+/* Pointer interaction stays clean; keyboard navigation keeps a single focus cue. */
+button:focus,input:focus,select:focus,a:focus,[tabindex]:focus { outline:none; }
+button:focus-visible,select:focus-visible,a:focus-visible,[tabindex]:focus-visible { outline:2px solid var(--leaf); outline-offset:3px; }
+input:focus-visible,.search-box input:focus-visible,.measure-value input:focus-visible,.catalog-search-field input:focus-visible { outline:none; box-shadow:inset 0 -2px var(--leaf); }
+html[data-input="pointer"] :focus-visible { outline:none; box-shadow:none; }
+.measure-row button:focus-visible { outline-offset:-4px; }
+.catalog-heading .eyebrow { margin-bottom:.35rem; }
+.catalog-heading h2 { margin:0; line-height:1.2; }

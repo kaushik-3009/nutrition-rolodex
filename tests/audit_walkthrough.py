@@ -16,6 +16,20 @@ with sync_playwright() as p:
     assert not external, external
     assert not failed, failed
     assert page.evaluate('document.fonts.check("400 16px DM Sans")')
+    # Pointer clicks have no extra focus box; Tab still exposes keyboard focus.
+    page.locator('#group-select').click(); page.keyboard.press('Escape')
+    assert page.locator('#group-select').evaluate('e=>getComputedStyle(e).outlineStyle')=='none'
+    page.locator('#catalog-search').click()
+    assert page.locator('#catalog-search').evaluate('e=>getComputedStyle(e).boxShadow')=='none'
+    page.keyboard.press('Tab')
+    assert page.evaluate('getComputedStyle(document.activeElement).outlineStyle')=='solid'
+    page.reload(wait_until='networkidle')
+    # Desktop column eyebrows share the same top line.
+    page.set_viewport_size({'width':1440,'height':1000})
+    left=page.locator('.catalog-heading .eyebrow').bounding_box()
+    right=page.locator('#food-picker > .eyebrow').bounding_box()
+    assert abs(left['y']-right['y'])<1
+    page.set_viewport_size({'width':390,'height':844})
     # The skip link must transfer keyboard focus into the catalog.
     page.keyboard.press('Tab'); assert page.locator('.skip-link').evaluate('(el)=>el===document.activeElement')
     page.keyboard.press('Enter'); assert page.evaluate('document.activeElement.id')=='browse'

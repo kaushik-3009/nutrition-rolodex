@@ -13,6 +13,7 @@
     <title>Pantry Index | Nutrition Facts for Everyday Ingredients</title>
     <link rel="stylesheet" href="public/fonts.css" />
     <link rel="stylesheet" href="styles.css" />
+    <script src="focus.js" defer></script>
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Pantry Index","description":"Searchable nutrition facts for everyday raw, dry, canned, and frozen ingredients.","potentialAction":{"@type":"SearchAction","target":"index.html?q={search_term_string}","query-input":"required name=search_term_string"}}</script>
   </head>
@@ -39,13 +40,13 @@
       </section>
 
       <section class="browse-section" id="browse" tabindex="-1" aria-labelledby="browse-title">
-        <div class="section-heading catalog-heading">
-          <div class="heading-primary"><p class="eyebrow">The catalog</p><h2 id="browse-title">Browse foods.</h2></div>
 
-        </div>
         <div class="catalog-workspace">
 
           <div class="results-area" id="food-browser">
+            <div class="section-heading catalog-heading">
+              <div class="heading-primary"><p class="eyebrow">The catalog</p><h2 id="browse-title">Browse foods.</h2></div>
+            </div>
             <div class="group-select-control"><label for="group-select">Food group</label><select id="group-select" disabled><option value="all">All foods</option></select></div>
             <div class="catalog-search"><label for="catalog-search">Search this catalog</label><div class="catalog-search-field"><span aria-hidden="true">⌕</span><input id="catalog-search" type="search" placeholder="Search foods…" autocomplete="off" aria-controls="results-grid" /><span class="catalog-search-count" id="catalog-search-count"></span></div></div>
             <div class="browse-toolbar"><button class="quiet-button" id="reset-filters" type="button" hidden>Reset filters</button><p class="result-count" id="result-count" role="status"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
