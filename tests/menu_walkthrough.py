@@ -73,7 +73,7 @@ with sync_playwright() as p:
     page.locator("#add-to-menu").click()
     assert "Added 100 g." in page.locator("#add-feedback").inner_text()
     assert "Food now totals 100 g" in page.locator("#add-feedback").inner_text()
-    assert "100 g added to your day." in page.locator("#toast").inner_text()
+    assert not page.locator("#toast").evaluate("el => el.classList.contains('visible')")
     page.locator("#amount-input").fill("125")
     assert page.locator("#add-feedback").inner_text() == ""
     page.locator("#undo-menu").click()

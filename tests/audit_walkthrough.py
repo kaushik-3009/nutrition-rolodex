@@ -30,6 +30,13 @@ with sync_playwright() as p:
         page.locator('#catalog-search').fill(query)
         assert page.locator('#empty-state').is_visible(),query
         assert not page.locator('#food-picker').is_visible()
+    page.locator('#clear-filters').click()
+    assert page.locator('#catalog-search').input_value()==''
+    assert page.locator('.result-card').count()>0
+    assert not page.locator('.daily-label').is_visible()
+    assert page.locator('#empty-day-preview').is_visible()
+    values=page.locator('#group-select option').evaluate_all('(options)=>options.map(o=>o.value)')
+    assert 'Pulses' in values and 'Legumes and Legume Products' not in values
     # Native portions retain their selected description until the amount changes.
     page.locator('#catalog-search').fill('carrots')
     page.locator('.result-card').first.click()
@@ -45,6 +52,15 @@ with sync_playwright() as p:
     page.locator('#reset-measure').click()
     assert page.locator('#source-portion').input_value()==''
     assert page.locator('#amount-input').input_value()=='100'
+    page.locator('#add-to-menu').click()
+    assert page.locator('.daily-label').is_visible()
+    assert not page.locator('#empty-day-preview').is_visible()
+    page.locator('[data-menu-grams]').fill('-1')
+    assert page.locator('.menu-item .row-error').is_visible()
+    assert 'last valid' in page.locator('.menu-item .row-error').inner_text()
+    page.locator('#clear-menu').click()
+    assert page.locator('#empty-day-preview').is_visible()
+    assert not page.locator('.daily-label').is_visible()
     assert not errors,errors
     # Failed data loading must explain itself and keep the main action disabled.
     broken=browser.new_page()

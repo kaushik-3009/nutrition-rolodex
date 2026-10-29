@@ -61,11 +61,12 @@
       if (entries[index]) invalidDrafts.set(entries[index].foodId, input.value);
       input.setCustomValidity("Enter a gram amount greater than zero, up to 1,000,000.");
       input.setAttribute("aria-invalid", "true");
+      updateRowError(input, true);
       find("#menu-input-status").hidden = false;
       find("#menu-input-status").textContent = "This amount is invalid. Daily totals still use the last valid amount; correct the grams to update them.";
       return false;
     }
-    input.setCustomValidity(""); input.removeAttribute("aria-invalid");
+    input.setCustomValidity(""); input.removeAttribute("aria-invalid"); updateRowError(input, false);
     const index = Number(input.dataset.menuGrams);
     if (!entries[index]) return false;
     invalidDrafts.delete(entries[index].foodId);
@@ -108,14 +109,28 @@
       return `${section}<div class="${indent ? "indent" : ""}"><dt>${indent ? escape(label) : `<b>${escape(label)}</b>`} ${amount(summary)}${coverage(summary) ? `<small class="coverage-note">${coverage(summary)}</small>` : ""}</dt><dd>${daily}</dd></div>`;
     }).join("");
   }
+  function updateRowError(input, invalid) {
+    const row = input.closest(".menu-item");
+    let message = row.querySelector(".row-error");
+    if (!message) { message = document.createElement("small"); message.className = "row-error"; message.id = `menu-error-${input.dataset.menuGrams}`; row.append(message); }
+    message.textContent = invalid ? "Enter 0.01–1,000,000 g. Totals use the last valid amount." : "";
+    message.hidden = !invalid;
+    if (invalid) input.setAttribute("aria-describedby", message.id); else input.removeAttribute("aria-describedby");
+  }
   function render() {
     find("#menu-input-status").hidden = invalidDrafts.size === 0;
     find("#menu-items").innerHTML = entries.map((entry, index) => {
       const food = byId.get(entry.foodId);
       const draft = invalidDrafts.get(entry.foodId);
-      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape(food.group)} · ${escape(titleState(food.state))}</p></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${draft === undefined ? entry.grams : escape(draft)}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" ${draft === undefined ? "" : 'aria-invalid="true"'} required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
+      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape(foodGroup(food))} · ${escape(titleState(food.state))}</p></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${draft === undefined ? entry.grams : escape(draft)}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" ${draft === undefined ? "" : 'aria-invalid="true"'} required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
     }).join("");
-    find("#menu-empty").hidden = entries.length > 0;
+    document.querySelectorAll("[data-menu-grams][aria-invalid=true]").forEach(input => updateRowError(input, true));
+    find("#menu-empty").hidden = true;
+    find("#menu-storage-status").hidden = entries.length === 0 && storageMessage.startsWith("Saved in this browser");
+    find(".daily-label").hidden = entries.length === 0;
+    find("#empty-day-preview").hidden = entries.length > 0;
+    find("#clear-menu").hidden = entries.length === 0;
+    find("#export-menu").hidden = entries.length === 0;
     find("#clear-menu").disabled = entries.length === 0;
     find("#export-menu").disabled = entries.length === 0;
     find("#undo-menu").hidden = previous === null;
@@ -137,7 +152,7 @@
     save(); render();
     const total = entries.find(entry => entry.foodId === foodId).grams;
     find("#add-feedback").textContent = `Added ${gramsText(grams)}. Food now totals ${gramsText(total)} in your day.`;
-    showToast(`${gramsText(grams)} added to your day.`);
+    // The nearby inline status confirms success without covering the nutrition label.
   });
   find("#menu-items").addEventListener("change", event => {
     const input = event.target.closest("[data-menu-grams]");

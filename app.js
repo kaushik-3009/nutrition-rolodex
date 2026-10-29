@@ -36,9 +36,9 @@ function readableSourceDescription(food) {
 }
 function formatNumber(value, unit) {
   if (value === null || value === undefined || Number.isNaN(value)) return "—";
-  if (value > 0 && value < 0.001) return `${Number(value.toPrecision(2))}${unit}`;
+  if (value > 0 && value < 0.001) return `${Number(value.toPrecision(2))}${unit ? " " + unit : ""}`;
   const precision = unit === "kcal" || unit === "" ? 0 : value >= 10 ? 0 : value >= 1 ? 1 : 3;
-  return `${Number(value.toFixed(precision))}${unit}`;
+  return `${Number(value.toFixed(precision))}${unit ? " " + unit : ""}`;
 }
 function nutrientValue(food, key, grams) { return PantryNutrition.nutrientValue(food, key, grams); }
 function dvValue(key, value) { return !dailyValues[key] || value === null || value === undefined ? "—" : `${Math.round(value / dailyValues[key] * 100)}%`; }
@@ -82,9 +82,11 @@ function measurementLabel(food, includeState = false) {
   return includeState && food.state === "dry" ? `${label} dry` : label;
 }
 
+const groupAliases = { "Cereal Grains and Pasta": "Grains", "Fruits and Fruit Juices": "Fruit", "Vegetables and Vegetable Products": "Vegetables", "Legumes and Legume Products": "Pulses", "Dairy and Egg Products": "Dairy & eggs", "Nut and Seed Products": "Nuts & seeds", "Fats and Oils": "Oils", "Finfish and Shellfish Products": "Seafood" };
+function foodGroup(food) { return groupAliases[food.group] || food.group; }
 function renderGroups() {
   const counts = new Map();
-  for (const food of catalog) counts.set(food.group, (counts.get(food.group) || 0) + 1);
+  for (const food of catalog) counts.set(foodGroup(food), (counts.get(foodGroup(food)) || 0) + 1);
   const groups = [...counts.keys()].sort((a, b) => a.localeCompare(b));
   $("#group-select").innerHTML = `<option value="all">All foods (${catalog.length})</option>` + groups.map(group => `<option value="${html(group)}">${html(group)} (${counts.get(group)})</option>`).join("");
   $("#group-select").value = selectedGroup;
@@ -106,7 +108,7 @@ function filteredFoods() {
   const query = normalizeSearch(searchTerm);
   const terms = query.split(/\s+/).filter(Boolean);
   if (searchTerm.trim() && !terms.length) return [];
-  return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.some(word => word.startsWith(term)))) && (selectedGroup === "all" || food.group === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
+  return catalog.filter((food) => { const searchable = searchableFoods.get(food.id); return (!query || terms.every(term => searchable.some(word => word.startsWith(term)))) && (selectedGroup === "all" || foodGroup(food) === selectedGroup) && (selectedState === "all" || food.state === selectedState); });
 }
 function renderPagination(totalItems) {
   const pagination = $("#pagination");
@@ -126,7 +128,7 @@ function renderResults() {
   selectedFood = nextSelection;
   $("#result-count").textContent = `${foods.length} ${foods.length === 1 ? "entry" : "entries"}${searchTerm ? ` matching “${searchTerm}”` : " in the catalog"}${totalPages > 1 ? ` · page ${currentPage} of ${totalPages}` : ""}`;
   $("#catalog-search-count").textContent = searchTerm ? `${foods.length} found` : `${catalog.length} foods`;
-  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" aria-pressed="${selectedFood?.id === food.id}" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(food.group)}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
+  $("#results-grid").innerHTML = pageFoods.map((food) => `<button class="result-card ${selectedFood?.id === food.id ? "selected" : ""}" type="button" aria-pressed="${selectedFood?.id === food.id}" data-food-id="${html(food.id)}"><span class="card-top"><span class="card-type">${html(foodGroup(food))}</span><span class="card-state">${html(compactState(food.state))}</span></span><h3>${html(food.name)}</h3><p>${food.sourceType === "branded" ? "Branded product" : "USDA reference food"} · ${food.servingGrams}g reference</p></button>`).join("");
   renderPagination(foods.length);
   $("#empty-state").hidden = foods.length !== 0;
   document.querySelectorAll("[data-food-id]").forEach((button) => button.addEventListener("click", () => selectFood(catalog.find((food) => food.id === button.dataset.foodId))));
@@ -174,7 +176,7 @@ function renderLabel() {
   const food = selectedFood;
   activePortion = null;
   $("#detail-title").textContent = food.name;
-  $("#food-type").textContent = `${food.group} · ${food.sourceType === "branded" ? "Grocery product" : "USDA reference food"} · ${titleState(food.state)}`;
+  $("#food-type").textContent = `${foodGroup(food)} · ${food.sourceType === "branded" ? "Grocery product" : "USDA reference food"} · ${titleState(food.state)}`;
   $("#food-description").textContent = readableSourceDescription(food);
   $("#food-source").textContent = food.sourceDataset || food.source;
   $("#food-record").textContent = food.fdcId ? `FDC ${food.fdcId}` : food.sourceId || "Source record";
@@ -215,7 +217,7 @@ $("#catalog-search").addEventListener("keydown", event => {
 document.querySelectorAll("[data-search]").forEach(button => button.addEventListener("click", () => { $("#food-search").value = button.dataset.search; $("#lookup").requestSubmit(); }));
 $("#group-select").addEventListener("change", event => { selectedGroup = event.target.value; currentPage = 1; syncFilters(); renderResults(); $("#results-grid").scrollTop = 0; });
 document.querySelectorAll("[data-state]").forEach(button => button.addEventListener("click", () => { selectedState = button.dataset.state; currentPage = 1; syncFilters(); renderResults(); }));
-$("#clear-filters").addEventListener("click", () => { clearFilters(); focusSearch(); });
+$("#clear-filters").addEventListener("click", () => { searchTerm = ""; $("#catalog-search").value = ""; $("#food-search").value = ""; clearFilters(); focusSearch(); });
 $("#reset-filters").addEventListener("click", clearFilters);
 $("#find-next-food").addEventListener("click", focusSearch);
 document.querySelectorAll("[data-unit]").forEach((button) => button.addEventListener("click", () => setUnit(button.dataset.unit)));

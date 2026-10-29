@@ -27,7 +27,7 @@
       <section class="hero" aria-labelledby="hero-title">
         <p class="eyebrow">A nutrition rolodex for the everyday pantry</p>
         <h1 id="hero-title">Know what’s in<br /><em>your food.</em></h1>
-        <p class="hero-copy">Look up plain ingredients and familiar grocery products. See the serving, the label, and the nutrients that usually live on the back of the package. Build a daily menu to see it all together.</p>
+        <p class="hero-copy">Look up a food’s nutrition, choose an amount, and combine foods into one daily label.</p>
         <form class="search-box" id="lookup" role="search">
           <label class="sr-only" for="food-search">Search foods and products</label>
           <span class="search-icon" aria-hidden="true">⌕</span>
@@ -51,7 +51,7 @@
             <div class="browse-toolbar"><button class="quiet-button" id="reset-filters" type="button" hidden>Reset filters</button><p class="result-count" id="result-count" role="status"></p><div class="state-filters" role="group" aria-label="Food state"><button class="active" type="button" data-state="all">All states</button><button type="button" data-state="raw">Raw</button><button type="button" data-state="dry">Dry</button><button type="button" data-state="canned">Canned</button><button type="button" data-state="frozen">Frozen</button><button type="button" data-state="cooked">Cooked</button></div></div>
             <div class="results-grid" id="results-grid" role="region" aria-label="Matching foods" tabindex="0"></div>
             <nav class="pagination" id="pagination" aria-label="Catalog pages"></nav>
-            <div class="empty-state" id="empty-state" hidden><p class="eyebrow">No match</p><h3>No foods match these filters.</h3><p>Try another search, or clear the group and preparation filters.</p><button class="quiet-button" id="clear-filters" type="button">Clear filters</button></div>
+            <div class="empty-state" id="empty-state" hidden><p class="eyebrow">No match</p><h3>No foods match these filters.</h3><p>Try another search, or clear the group and preparation filters.</p><button class="quiet-button" id="clear-filters" type="button">Clear search and filters</button></div>
           </div>
 
           <section class="detail-section" id="detail" aria-labelledby="detail-title">
@@ -82,16 +82,16 @@
       </section>
       <section class="daily-menu-section" id="daily-menu" aria-labelledby="menu-title">
         <div class="section-heading"><div><p class="eyebrow">The whole picture</p><h2 id="menu-title" tabindex="-1">Your day, in one label.</h2></div><a class="quiet-button" href="#browse">+ Browse foods</a></div>
-        <p class="menu-intro">Choose a food and an amount above, then add it to your day. Use the food in the state you actually weigh it: dry rice and cooked rice have different nutrition per gram.</p>
+        <p class="menu-intro">Choose foods in the state you weigh them: raw, cooked, dry, or drained. Your amounts add up to one daily label.</p>
         <div class="menu-workspace">
           <div class="menu-editor">
             <div class="menu-toolbar"><p id="menu-summary" role="status">No foods added yet</p><button class="quiet-button" id="clear-menu" type="button" disabled>Clear day</button><button class="quiet-button" id="undo-menu" type="button" hidden>Undo</button></div>
-            <p id="menu-empty">Start with breakfast, or any food you plan to eat. Add individual foods from a food group; a group itself has no single nutrition profile.</p>
+            <p id="menu-empty">Add your first food from the catalog. Your amounts and daily totals will be saved here.</p>
             <ul id="menu-items" class="menu-items" aria-label="Foods in your daily menu"></ul>
             <p id="menu-input-status" role="status" class="input-error" hidden></p><p id="menu-nutrition-status" role="status" class="sr-only"></p><p id="menu-storage-status" class="menu-note">Saved in this browser on this device. This is a reusable day plan, not a dated food log.</p>
             <button class="quiet-button" id="export-menu" type="button" disabled>Download day (JSON)</button>
           </div>
-          <section class="label-panel daily-label" aria-labelledby="day-nutrition-title">
+          <div id="empty-day-preview" class="empty-day-preview"><p class="eyebrow">Your daily nutrition</p><h3>Your label starts with your first food.</h3><p>Add foods and amounts to see calories, vitamins, and minerals together.</p><a class="quiet-button" href="#browse">Choose a food</a></div><section class="label-panel daily-label" aria-labelledby="day-nutrition-title">
             <div class="label-topline"><p class="label-kicker">Your daily menu</p><span class="label-source">All selected foods</span></div>
             <h3 id="day-nutrition-title">Nutrition Facts</h3>
             <p class="servings">Total for your planned day</p>

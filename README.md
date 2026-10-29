@@ -178,3 +178,16 @@ Browser testing covers Chromium desktop/mobile layouts and keyboard controls.
 `BROWSERS=firefox,webkit python3 tests/cross_browser.py` can additionally run
 those engines after installing their Playwright browsers and system dependencies.
 See [the detailed UI audit](tests/UI_AUDIT.md) for fixes, coverage and limitations.
+
+## Screenshot review
+
+Open [`review/index.html`](review/index.html) for 68 before/after screenshots
+across 17 UI states, each shown at desktop and phone widths with specific review
+notes. This gallery is separate from the app navigation. Reproduce captures with:
+
+```sh
+python3 tests/capture_screenshots.py http://127.0.0.1:8000 /tmp/pantry-screenshots
+```
+
+The screenshot pass merges duplicate food-group names only in the interface;
+source food metadata and nutrient values are preserved.
