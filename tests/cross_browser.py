@@ -50,6 +50,7 @@ def run(browser_type, name):
             assert card.count() > 0, f"{name}: oats search returned no cards"
             card.click()
 
+            page.locator("[data-unit=g]").click()
             amount = page.locator("#amount-input")
             amount.focus()
             amount.fill("1.25")

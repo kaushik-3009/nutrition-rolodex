@@ -41,6 +41,8 @@ with sync_playwright() as p:
             card.click()
             amount = page.locator('#amount-input')
             assert amount.evaluate('(input) => input === document.activeElement')
+            page.locator("[data-unit=g]").click()
+            amount.press("ControlOrMeta+A")
             amount.press_sequentially(str(grams), delay=20)
             assert math.isclose(float(amount.input_value()), grams)
             amount_box = amount.bounding_box()
@@ -82,6 +84,8 @@ with sync_playwright() as p:
         # Decimal editing and small amounts must not be normalized mid-keystroke.
         page.locator('#catalog-search').fill('oats')
         page.locator('.result-card').first.click()
+        page.locator('[data-unit=g]').click()
+        page.locator('#amount-input').press('ControlOrMeta+A')
         page.locator('#amount-input').press_sequentially('1.25', delay=20)
         assert page.locator('#amount-input').input_value() == '1.25'
         page.locator('#amount-input').press('Backspace')

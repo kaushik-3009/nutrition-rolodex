@@ -14,7 +14,7 @@ with sync_playwright() as p:
   shot('01-home')
   shot('02-browse','#browse')
   page.locator('#catalog-search').fill('carrots');page.locator('.result-card').first.click();shot('03-picker','#food-picker')
-  page.locator('#source-portion').click();shot('04-portion-open');page.keyboard.press('Escape')
+  page.locator('[data-unit=cup]').click();shot('04-measure-buttons')
   page.locator('#group-select').scroll_into_view_if_needed();page.locator('#group-select').click();shot('05-group-open');page.keyboard.press('Escape')
   shot('06-label','#nutrition-title');shot('07-label-bottom','#food-record')
   shot('08-day-empty','#daily-menu')

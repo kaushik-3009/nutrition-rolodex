@@ -12,7 +12,7 @@
     <meta name="twitter:card" content="summary" />
     <title>Why Pantry Index Exists | About</title>
     <link rel="stylesheet" href="public/fonts.css" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=measure-controls-1" />
     <script src="focus.js" defer></script>
     <link rel="icon" href="public/favicon.svg" type="image/svg+xml" />
   </head>
@@ -39,7 +39,7 @@
         <div class="about-section-heading"><h2 id="principles-title">What each entry includes.</h2></div>
         <div class="about-point-grid">
           <article><span class="point-number">01</span><h3>Search</h3><p>Filter the catalog by ingredient, food group, or state.</p></article>
-          <article><span class="point-number">02</span><h3>Serving size</h3><p>Use cups, tablespoons, or grams when appropriate.</p></article>
+          <article><span class="point-number">02</span><h3>Serving size</h3><p>Use grams, cups, spoons, or food counts.</p></article>
           <article><span class="point-number">03</span><h3>Nutrition facts</h3><p>See calories, nutrients, and Daily Values for the selected amount.</p></article>
           <article><span class="point-number">04</span><h3>Food state</h3><p>Raw, cooked, dry, canned, and frozen records keep their source descriptions. Always choose the preparation you weigh.</p></article>
         </div>
@@ -47,12 +47,12 @@
 
       <section class="catalog-path" aria-labelledby="path-title">
         <div><p class="eyebrow">From a food to a day</p><h2 id="path-title">Understand the whole menu.</h2></div>
-        <div class="path-list"><div><span>Now</span><p>Thousands of USDA foods, with source records and available nutrients. Add your selected amounts to a daily menu to see a combined nutrition label.</p></div><div><span>Sources</span><p>The expanded catalog comes from USDA SR Legacy (April 2018), a historical reference, plus source-reconciled FoodData Central records. It does not guarantee the composition of a current packaged product.</p></div><div><span>Gaps</span><p>Not every nutrient is measured for every food. A dash means unknown; a daily subtotal with incomplete data is marked ≥ and shows how many foods report it. Daily Values are general references, not personalized requirements.</p></div></div>
+        <div class="path-list"><div><span>Now</span><p>Thousands of USDA foods, with source records and available nutrients. Add your selected amounts to a daily menu to see a combined nutrition label.</p></div><div><span>Sources</span><p>Nutrients come from USDA FoodData Central. Each food links to its source record.</p></div><div><span>Gaps</span><p>A dash means a nutrient was not reported. Daily totals marked ≥ show the known subtotal.</p></div></div>
       </section>
 
     </main>
 
-    <footer><a class="brand" href="index.html#top"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a><nav aria-label="Footer navigation"><a href="index.html#browse">Browse</a><a href="about.html">About</a></nav><p>Nutrition information is a reference, not medical advice.</p><p>© <span id="year"></span></p></footer>
+    <footer><a class="brand" href="index.html#top"><span class="brand-mark" aria-hidden="true">PI</span><span>Pantry Index</span></a><nav aria-label="Footer navigation"><a href="index.html#browse">Browse</a><a href="about.html">About</a></nav><p>Nutrition data: USDA FoodData Central.</p><p>© <span id="year"></span></p></footer>
     <script>document.getElementById("year").textContent = new Date().getFullYear();</script>
     <script type="application/ld+json">{"@context":"https://schema.org","@type":"AboutPage","name":"Why Pantry Index Exists","description":"The personal story behind Pantry Index, a searchable nutrition reference for everyday ingredients."}</script>
   </body>

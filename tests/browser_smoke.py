@@ -51,6 +51,7 @@ with sync_playwright() as p:
     page.locator('[data-menu-grams]').fill('100')
     page.locator('[data-menu-grams]').press('Tab')
     # Invalid or huge single-food amounts cannot overflow arithmetic or add stale data.
+    page.locator('[data-unit=g]').click()
     page.locator('#amount-input').fill('1e300')
     assert page.locator('#add-to-menu').is_disabled()
     assert page.locator('#amount-error').is_visible()
@@ -70,10 +71,10 @@ with sync_playwright() as p:
     page.locator('[data-state=all]').click()
     portion_food = page.evaluate('window.PANTRY_CATALOG.find(f => f.portionOptions?.length > 0).id')
     page.evaluate('(id) => selectFood(catalog.find(f => f.id === id))', portion_food)
-    portion = page.locator('#source-portion option').nth(1)
-    grams = portion.get_attribute('value')
-    page.locator('#source-portion').select_option(grams)
-    assert float(page.locator('#amount-input').input_value()) == float(grams)
+    measure = page.locator('[data-unit]').nth(1)
+    measure.click()
+    page.locator('#amount-input').fill('1/2')
+    assert '½' in page.locator('#serving-size').inner_text()
     # Real source data with incomplete nutrient coverage: never show partial %DV.
     pair = page.evaluate('''() => {
       const a = window.PANTRY_CATALOG.find(f => f.per100g.vitaminK?.value != null);
@@ -85,7 +86,7 @@ with sync_playwright() as p:
         page.evaluate('(id) => window.dispatchEvent(new CustomEvent("pantry:add-food", { detail: { foodId: id, grams: 100 } }))', item)
     vitamin_row = page.locator('#day-nutrients > div').filter(has=page.locator('dt', has_text='Vitamin K'))
     assert '≥' in vitamin_row.inner_text()
-    assert '1/2 foods report' in vitamin_row.inner_text()
+    assert '1/2 foods' in vitamin_row.inner_text()
     assert vitamin_row.locator('dd').inner_text() == '—'
     # Remove, recover from unavailable IDs, and escape invalid/corrupt storage.
     page.locator('[data-remove]').first.click()

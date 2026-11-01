@@ -1,0 +1,1339 @@
+{
+  "source": "Original 108-food household measures, retained by matching FDC ID and compatible preparation",
+  "foods": [
+    {
+      "fdcId": 2512381,
+      "id": "generic-white-rice-long-grain",
+      "oldName": "White rice, long grain",
+      "state": "dry",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 45
+    },
+    {
+      "fdcId": 2346396,
+      "id": "generic-rolled-oats",
+      "oldName": "Rolled oats",
+      "state": "dry",
+      "cupGrams": 80,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 40
+    },
+    {
+      "fdcId": 170284,
+      "id": "generic-barley-pearled",
+      "oldName": "Barley, pearled",
+      "state": "dry",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 45
+    },
+    {
+      "fdcId": 170688,
+      "id": "generic-bulgur",
+      "oldName": "Bulgur",
+      "state": "dry",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 45
+    },
+    {
+      "fdcId": 790085,
+      "id": "generic-whole-wheat-flour",
+      "oldName": "Whole-wheat flour",
+      "state": "dry",
+      "cupGrams": 120,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 30
+    },
+    {
+      "fdcId": 2644283,
+      "id": "generic-lentils",
+      "oldName": "Lentils",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 173734,
+      "id": "generic-black-beans-dry",
+      "oldName": "Black beans (dry)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 2644282,
+      "id": "generic-chickpeas-dry",
+      "oldName": "Chickpeas (dry)",
+      "state": "dry",
+      "cupGrams": 168,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 42
+    },
+    {
+      "fdcId": 172428,
+      "id": "generic-split-peas",
+      "oldName": "Split peas",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 175199,
+      "id": "generic-pinto-beans-dry",
+      "oldName": "Pinto beans (dry)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 2709797,
+      "id": "generic-peas-green-raw",
+      "oldName": "Peas, green, raw",
+      "state": "raw",
+      "cupGrams": 145,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 80
+    },
+    {
+      "fdcId": 174284,
+      "id": "generic-masoor-dal-red-lentils",
+      "oldName": "Masoor dal (red lentils)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 172420,
+      "id": "generic-whole-masoor-brown-lentils",
+      "oldName": "Whole masoor (brown lentils)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 174256,
+      "id": "generic-whole-moong-beans",
+      "oldName": "Whole moong beans",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 172436,
+      "id": "generic-toor-dal-pigeon-peas",
+      "oldName": "Toor dal (pigeon peas)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 2707379,
+      "id": "generic-rajma-kidney-beans",
+      "oldName": "Rajma (kidney beans)",
+      "state": "dry",
+      "cupGrams": 185,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 173758,
+      "id": "generic-lobia-black-eyed-peas",
+      "oldName": "Lobia (black-eyed peas)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 172425,
+      "id": "generic-moth-beans-matki",
+      "oldName": "Moth beans (matki)",
+      "state": "dry",
+      "cupGrams": 192,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 48
+    },
+    {
+      "fdcId": 168462,
+      "id": "generic-spinach-raw",
+      "oldName": "Spinach, raw",
+      "state": "raw",
+      "cupGrams": 30,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 30
+    },
+    {
+      "fdcId": 323505,
+      "id": "generic-kale-raw",
+      "oldName": "Kale, raw",
+      "state": "raw",
+      "cupGrams": 20.6,
+      "cupSource": "USDA FoodData Central",
+      "servingGrams": 67
+    },
+    {
+      "fdcId": 747447,
+      "id": "generic-broccoli-raw",
+      "oldName": "Broccoli, raw",
+      "state": "raw",
+      "cupGrams": 76,
+      "cupSource": "USDA FoodData Central",
+      "servingGrams": 76
+    },
+    {
+      "fdcId": 2685573,
+      "id": "generic-cauliflower-raw",
+      "oldName": "Cauliflower, raw",
+      "state": "raw",
+      "cupGrams": 107,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5
+    },
+    {
+      "fdcId": 170393,
+      "id": "generic-carrots-raw",
+      "oldName": "Carrots, raw",
+      "state": "raw",
+      "cupGrams": 128,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "carrot",
+        "plural": "carrots",
+        "grams": 61,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 61
+    },
+    {
+      "fdcId": 2346404,
+      "id": "generic-sweet-potato-raw",
+      "oldName": "Sweet potato, raw",
+      "state": "raw",
+      "cupGrams": 133,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "sweet potato",
+        "plural": "sweet potatoes",
+        "grams": 130,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 130
+    },
+    {
+      "fdcId": 170027,
+      "id": "generic-potatoes-russet-flesh-and-skin-raw",
+      "oldName": "Potatoes, russet, flesh and skin, raw",
+      "state": "raw",
+      "cupGrams": 150,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "potato",
+        "plural": "potatoes",
+        "grams": 213,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 213
+    },
+    {
+      "fdcId": 170457,
+      "id": "generic-tomatoes-red-ripe-raw",
+      "oldName": "Tomatoes, red, ripe, raw",
+      "state": "raw",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "tomato",
+        "plural": "tomatoes",
+        "grams": 123,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 123
+    },
+    {
+      "fdcId": 2709784,
+      "id": "generic-cucumber-with-peel-raw",
+      "oldName": "Cucumber, with peel, raw",
+      "state": "raw",
+      "cupGrams": 120,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "cucumber",
+        "plural": "cucumbers",
+        "grams": 200,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 104
+    },
+    {
+      "fdcId": 170000,
+      "id": "generic-onions-raw",
+      "oldName": "Onions, raw",
+      "state": "raw",
+      "cupGrams": 160,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "onion",
+        "plural": "onions",
+        "grams": 160,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 160
+    },
+    {
+      "fdcId": 170108,
+      "id": "generic-peppers-sweet-red-raw",
+      "oldName": "Peppers, sweet, red, raw",
+      "state": "raw",
+      "cupGrams": 149,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "pepper",
+        "plural": "peppers",
+        "grams": 149,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 149
+    },
+    {
+      "fdcId": 2685568,
+      "id": "generic-squash-summer-zucchini-includes-skin-raw",
+      "oldName": "Squash, summer, zucchini, includes skin, raw",
+      "state": "raw",
+      "cupGrams": 124,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "zucchini",
+        "plural": "zucchini",
+        "grams": 124,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 124
+    },
+    {
+      "fdcId": 2709793,
+      "id": "generic-mushrooms-white-raw",
+      "oldName": "Mushrooms, white, raw",
+      "state": "raw",
+      "cupGrams": 70,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "mushroom",
+        "plural": "mushrooms",
+        "grams": 18,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 70
+    },
+    {
+      "fdcId": 2709590,
+      "id": "generic-romaine-lettuce",
+      "oldName": "Romaine lettuce",
+      "state": "raw",
+      "cupGrams": 35,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "leaf",
+        "plural": "leaves",
+        "grams": 13,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "servingGrams": 47
+    },
+    {
+      "fdcId": 169975,
+      "id": "generic-cabbage",
+      "oldName": "Cabbage",
+      "state": "raw",
+      "cupGrams": 89,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 89
+    },
+    {
+      "fdcId": 2709769,
+      "id": "generic-green-beans",
+      "oldName": "Green beans",
+      "state": "raw",
+      "cupGrams": 100,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "bean",
+        "plural": "beans",
+        "grams": 6,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5
+    },
+    {
+      "fdcId": 168389,
+      "id": "generic-asparagus",
+      "oldName": "Asparagus",
+      "state": "raw",
+      "cupGrams": 134,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "spear",
+        "plural": "spears",
+        "grams": 17,
+        "source": "Common household reference",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 134
+    },
+    {
+      "fdcId": 2346405,
+      "id": "generic-celery",
+      "oldName": "Celery",
+      "state": "raw",
+      "cupGrams": 101,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "stalk",
+        "plural": "stalks",
+        "grams": 40,
+        "source": "Common household reference",
+        "defaultAmount": 1
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 101
+    },
+    {
+      "fdcId": 1104647,
+      "id": "generic-garlic",
+      "oldName": "Garlic",
+      "state": "raw",
+      "tbspGrams": 8.5,
+      "tbspSource": "Curated household default",
+      "countMeasure": {
+        "unit": "clove",
+        "plural": "cloves",
+        "grams": 3,
+        "source": "Common household reference",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "tbsp",
+      "defaultAmount": 1,
+      "servingGrams": 3
+    },
+    {
+      "fdcId": 171688,
+      "id": "generic-apples-raw-with-skin",
+      "oldName": "Apples, raw, with skin",
+      "state": "raw",
+      "cupGrams": 109,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "apple",
+        "plural": "apples",
+        "grams": 182,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 182
+    },
+    {
+      "fdcId": 173944,
+      "id": "generic-bananas-raw",
+      "oldName": "Bananas, raw",
+      "state": "raw",
+      "cupGrams": 150,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "banana",
+        "plural": "bananas",
+        "grams": 118,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 118
+    },
+    {
+      "fdcId": 169097,
+      "id": "generic-oranges-raw-all-commercial-varieties",
+      "oldName": "Oranges, raw, all commercial varieties",
+      "state": "raw",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "orange",
+        "plural": "oranges",
+        "grams": 140,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 140
+    },
+    {
+      "fdcId": 2346409,
+      "id": "generic-strawberries-raw",
+      "oldName": "Strawberries, raw",
+      "state": "raw",
+      "cupGrams": 152,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "strawberry",
+        "plural": "strawberries",
+        "grams": 12,
+        "source": "Common household reference"
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 152
+    },
+    {
+      "fdcId": 2346411,
+      "id": "generic-blueberries-raw",
+      "oldName": "Blueberries, raw",
+      "state": "raw",
+      "cupGrams": 148,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 148
+    },
+    {
+      "fdcId": 2709237,
+      "id": "generic-grapes-red-or-green",
+      "oldName": "Grapes, red or green",
+      "state": "raw",
+      "cupGrams": 150,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "grape",
+        "plural": "grapes",
+        "grams": 7,
+        "source": "USDA FoodData Central"
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 151
+    },
+    {
+      "fdcId": 171705,
+      "id": "generic-avocados-raw-all-commercial-varieties",
+      "oldName": "Avocados, raw, all commercial varieties",
+      "state": "raw",
+      "cupGrams": 150,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "avocado",
+        "plural": "avocados",
+        "grams": 150,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 150
+    },
+    {
+      "fdcId": 169910,
+      "id": "generic-mangos-raw",
+      "oldName": "Mangos, raw",
+      "state": "raw",
+      "cupGrams": 165,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "mango",
+        "plural": "mangos",
+        "grams": 165,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 165
+    },
+    {
+      "fdcId": 169124,
+      "id": "generic-pineapple-raw-all-varieties",
+      "oldName": "Pineapple, raw, all varieties",
+      "state": "raw",
+      "cupGrams": 165,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 165
+    },
+    {
+      "fdcId": 167746,
+      "id": "generic-lemons-raw-without-peel",
+      "oldName": "Lemons, raw, without peel",
+      "state": "raw",
+      "cupGrams": 212,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "lemon",
+        "plural": "lemons",
+        "grams": 58,
+        "source": "USDA FoodData Central"
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 58
+    },
+    {
+      "fdcId": 2709254,
+      "id": "generic-pear",
+      "oldName": "Pear",
+      "state": "raw",
+      "cupGrams": 125,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "pear",
+        "plural": "pears",
+        "grams": 180,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "servingGrams": 178
+    },
+    {
+      "fdcId": 2709249,
+      "id": "generic-peach",
+      "oldName": "Peach",
+      "state": "raw",
+      "cupGrams": 155,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "peach",
+        "plural": "peaches",
+        "grams": 150,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "servingGrams": 150
+    },
+    {
+      "fdcId": 167765,
+      "id": "generic-watermelon",
+      "oldName": "Watermelon",
+      "state": "raw",
+      "cupGrams": 152,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 152
+    },
+    {
+      "fdcId": 2346410,
+      "id": "generic-raspberries",
+      "oldName": "Raspberries",
+      "state": "raw",
+      "cupGrams": 123,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 123
+    },
+    {
+      "fdcId": 327046,
+      "id": "generic-kiwifruit",
+      "oldName": "Kiwifruit",
+      "state": "raw",
+      "cupGrams": 180,
+      "cupSource": "Curated household default",
+      "countMeasure": {
+        "unit": "kiwi",
+        "plural": "kiwis",
+        "grams": 69,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 69
+    },
+    {
+      "fdcId": 2646170,
+      "id": "generic-chicken-broilers-or-fryers-breast-meat-only-raw",
+      "oldName": "Chicken, broilers or fryers, breast, meat only, raw",
+      "state": "raw",
+      "servingGrams": 174
+    },
+    {
+      "fdcId": 2514743,
+      "id": "generic-beef-ground-90-lean-meat-10-fat-raw",
+      "oldName": "Beef, ground, 90% lean meat / 10% fat, raw",
+      "state": "raw",
+      "servingGrams": 113
+    },
+    {
+      "fdcId": 2646168,
+      "id": "generic-pork-fresh-loin-tenderloin-separable-lean-only-raw",
+      "oldName": "Pork, fresh, loin, tenderloin, separable lean only, raw",
+      "state": "raw",
+      "servingGrams": 113
+    },
+    {
+      "fdcId": 171093,
+      "id": "generic-turkey-retail-parts-breast-meat-only-raw",
+      "oldName": "Turkey, retail parts, breast, meat only, raw",
+      "state": "raw",
+      "servingGrams": 112
+    },
+    {
+      "fdcId": 2514747,
+      "id": "generic-ground-turkey",
+      "oldName": "Ground turkey",
+      "state": "raw",
+      "servingGrams": 112
+    },
+    {
+      "fdcId": 172475,
+      "id": "generic-tofu",
+      "oldName": "Tofu",
+      "state": "raw",
+      "servingGrams": 81
+    },
+    {
+      "fdcId": 2706284,
+      "id": "generic-fish-salmon-atlantic-wild-raw",
+      "oldName": "Fish, salmon, Atlantic, wild, raw",
+      "state": "raw",
+      "cupGrams": 135,
+      "cupSource": "USDA FoodData Central",
+      "servingGrams": 140
+    },
+    {
+      "fdcId": 2706308,
+      "id": "generic-fish-tuna-light-fresh-raw",
+      "oldName": "Fish, tuna, light, fresh, raw",
+      "state": "raw",
+      "cupGrams": 135,
+      "cupSource": "USDA FoodData Central",
+      "servingGrams": 113
+    },
+    {
+      "fdcId": 175179,
+      "id": "generic-crustaceans-shrimp-mixed-species-raw",
+      "oldName": "Crustaceans, shrimp, mixed species, raw",
+      "state": "raw",
+      "servingGrams": 85
+    },
+    {
+      "fdcId": 175176,
+      "id": "generic-fish-tilapia-raw",
+      "oldName": "Fish, tilapia, raw",
+      "state": "raw",
+      "servingGrams": 116
+    },
+    {
+      "fdcId": 2684444,
+      "id": "generic-cod",
+      "oldName": "Cod",
+      "state": "raw",
+      "servingGrams": 85
+    },
+    {
+      "fdcId": 171287,
+      "id": "generic-egg-whole-raw-fresh",
+      "oldName": "Egg, whole, raw, fresh",
+      "state": "raw",
+      "countMeasure": {
+        "unit": "egg",
+        "plural": "eggs",
+        "grams": 50,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "servingGrams": 50
+    },
+    {
+      "fdcId": 746782,
+      "id": "generic-milk-whole-3-25-milkfat-with-added-vitamin-d",
+      "oldName": "Milk, whole, 3.25% milkfat, with added vitamin D",
+      "state": "raw",
+      "cupGrams": 249,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 746778,
+      "id": "generic-milk-reduced-fat-2",
+      "oldName": "Milk, reduced fat (2%)",
+      "state": "raw",
+      "cupGrams": 245,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705387,
+      "id": "generic-milk-low-fat-1",
+      "oldName": "Milk, low fat (1%)",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705388,
+      "id": "generic-milk-fat-free-skim",
+      "oldName": "Milk, fat free (skim)",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 245
+    },
+    {
+      "fdcId": 2705392,
+      "id": "generic-milk-lactose-free-whole",
+      "oldName": "Milk, lactose free, whole",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705391,
+      "id": "generic-milk-lactose-free-reduced-fat-2",
+      "oldName": "Milk, lactose free, reduced fat (2%)",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705389,
+      "id": "generic-milk-lactose-free-low-fat-1",
+      "oldName": "Milk, lactose free, low fat (1%)",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705390,
+      "id": "generic-milk-lactose-free-fat-free-skim",
+      "oldName": "Milk, lactose free, fat free (skim)",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 245
+    },
+    {
+      "fdcId": 2705395,
+      "id": "generic-goat-milk",
+      "oldName": "Goat milk",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 170882,
+      "id": "generic-sheep-milk",
+      "oldName": "Sheep milk",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 171280,
+      "id": "generic-buffalo-milk",
+      "oldName": "Buffalo milk",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 244
+    },
+    {
+      "fdcId": 2705405,
+      "id": "generic-soy-milk-unsweetened",
+      "oldName": "Soy milk, unsweetened",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 240
+    },
+    {
+      "fdcId": 2705409,
+      "id": "generic-almond-milk-unsweetened",
+      "oldName": "Almond milk, unsweetened",
+      "state": "raw",
+      "cupGrams": 244,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 240
+    },
+    {
+      "fdcId": 2257046,
+      "id": "generic-oat-milk-unsweetened",
+      "oldName": "Oat milk, unsweetened",
+      "state": "raw",
+      "cupGrams": 240,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 240
+    },
+    {
+      "fdcId": 171942,
+      "id": "generic-rice-milk-unsweetened",
+      "oldName": "Rice milk, unsweetened",
+      "state": "raw",
+      "cupGrams": 240,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 1,
+      "servingGrams": 240
+    },
+    {
+      "fdcId": 2259794,
+      "id": "generic-yogurt-greek-plain-whole-milk",
+      "oldName": "Yogurt, Greek, plain, whole milk",
+      "state": "raw",
+      "cupGrams": 227,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.75,
+      "servingGrams": 170
+    },
+    {
+      "fdcId": 328637,
+      "id": "generic-cheese-cheddar",
+      "oldName": "Cheese, cheddar",
+      "state": "raw",
+      "cupGrams": 105,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "slice",
+        "plural": "slices",
+        "grams": 17,
+        "source": "USDA FoodData Central",
+        "defaultAmount": 1,
+        "default": true
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.25,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2346393,
+      "id": "generic-nuts-almonds-whole-raw",
+      "oldName": "Nuts, almonds, whole, raw",
+      "state": "raw",
+      "cupGrams": 143,
+      "cupSource": "Curated household default",
+      "tbspGrams": 9,
+      "tbspSource": "Curated household default",
+      "countMeasure": {
+        "unit": "almond",
+        "plural": "almonds",
+        "grams": 1.2,
+        "source": "Common household reference"
+      },
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2346394,
+      "id": "generic-nuts-walnuts-english-halves-raw",
+      "oldName": "Nuts, walnuts, English, halves, raw",
+      "state": "raw",
+      "cupGrams": 117,
+      "cupSource": "Curated household default",
+      "tbspGrams": 7.5,
+      "tbspSource": "Curated household default",
+      "countMeasure": {
+        "unit": "walnut half",
+        "plural": "walnut halves",
+        "grams": 4,
+        "source": "Common household reference"
+      },
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2515376,
+      "id": "generic-peanuts-all-types-raw",
+      "oldName": "Peanuts, all types, raw",
+      "state": "raw",
+      "cupGrams": 146,
+      "cupSource": "Curated household default",
+      "tbspGrams": 9,
+      "tbspSource": "Curated household default",
+      "countMeasure": {
+        "unit": "peanut",
+        "plural": "peanuts",
+        "grams": 1,
+        "source": "Common household reference"
+      },
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2707590,
+      "id": "generic-chia-seeds",
+      "oldName": "Chia seeds",
+      "state": "dry",
+      "cupGrams": 168,
+      "cupSource": "USDA FoodData Central",
+      "tbspGrams": 14,
+      "tbspSource": "Curated household default",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2262075,
+      "id": "generic-flaxseed",
+      "oldName": "Flaxseed",
+      "state": "dry",
+      "tbspGrams": 10,
+      "tbspSource": "Curated household default",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 1,
+      "servingGrams": 10
+    },
+    {
+      "fdcId": 2515380,
+      "id": "generic-pumpkin-seeds",
+      "oldName": "Pumpkin seeds",
+      "state": "dry",
+      "tbspGrams": 14,
+      "tbspSource": "Curated household default",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2707494,
+      "id": "generic-cashews",
+      "oldName": "Cashews",
+      "state": "raw",
+      "cupGrams": 130,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "cashew",
+        "plural": "cashews",
+        "grams": 1.5,
+        "source": "USDA FoodData Central"
+      },
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2346395,
+      "id": "generic-pecans",
+      "oldName": "Pecans",
+      "state": "raw",
+      "cupGrams": 109,
+      "cupSource": "Curated household default",
+      "tbspGrams": 7.5,
+      "tbspSource": "Curated household default",
+      "countMeasure": {
+        "unit": "pecan half",
+        "plural": "pecan halves",
+        "grams": 2,
+        "source": "Common household reference"
+      },
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2707582,
+      "id": "generic-sunflower-seeds",
+      "oldName": "Sunflower seeds",
+      "state": "dry",
+      "cupGrams": 46,
+      "cupSource": "USDA FoodData Central",
+      "tbspGrams": 14,
+      "tbspSource": "Curated household default",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 2,
+      "servingGrams": 28
+    },
+    {
+      "fdcId": 2710186,
+      "id": "generic-olive-oil",
+      "oldName": "Olive oil",
+      "state": "raw",
+      "cupGrams": 224,
+      "cupSource": "USDA FoodData Central",
+      "tbspGrams": 14,
+      "tbspSource": "USDA FoodData Central",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 1,
+      "servingGrams": 14
+    },
+    {
+      "fdcId": 2710188,
+      "id": "generic-canola-oil",
+      "oldName": "Canola oil",
+      "state": "raw",
+      "cupGrams": 224,
+      "cupSource": "USDA FoodData Central",
+      "tbspGrams": 14,
+      "tbspSource": "USDA FoodData Central",
+      "defaultUnit": "tbsp",
+      "defaultAmount": 1,
+      "servingGrams": 14
+    },
+    {
+      "fdcId": 2644285,
+      "id": "generic-canned-black-beans",
+      "oldName": "Canned black beans",
+      "state": "canned",
+      "cupGrams": 172,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 130
+    },
+    {
+      "fdcId": 2644288,
+      "id": "generic-canned-chickpeas",
+      "oldName": "Canned chickpeas",
+      "state": "canned",
+      "cupGrams": 164,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 125
+    },
+    {
+      "fdcId": 168397,
+      "id": "generic-canned-corn",
+      "oldName": "Canned corn",
+      "state": "canned",
+      "cupGrams": 164,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 140
+    },
+    {
+      "fdcId": 333281,
+      "id": "generic-canned-tomatoes",
+      "oldName": "Canned tomatoes",
+      "state": "canned",
+      "cupGrams": 245,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 121
+    },
+    {
+      "fdcId": 321611,
+      "id": "generic-canned-green-beans",
+      "oldName": "Canned green beans",
+      "state": "canned",
+      "cupGrams": 129,
+      "cupSource": "USDA FoodData Central",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 135
+    },
+    {
+      "fdcId": 2644291,
+      "id": "generic-canned-peas",
+      "oldName": "Canned peas",
+      "state": "canned",
+      "cupGrams": 160,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 145
+    },
+    {
+      "fdcId": 169287,
+      "id": "generic-frozen-spinach",
+      "oldName": "Frozen spinach",
+      "state": "frozen",
+      "cupGrams": 190,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 91
+    },
+    {
+      "fdcId": 170016,
+      "id": "generic-frozen-peas",
+      "oldName": "Frozen peas",
+      "state": "frozen",
+      "cupGrams": 185,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 80
+    },
+    {
+      "fdcId": 169968,
+      "id": "generic-frozen-broccoli",
+      "oldName": "Frozen broccoli",
+      "state": "frozen",
+      "cupGrams": 184,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 85
+    },
+    {
+      "fdcId": 2709285,
+      "id": "generic-frozen-strawberries",
+      "oldName": "Frozen strawberries",
+      "state": "frozen",
+      "cupGrams": 150,
+      "cupSource": "USDA FoodData Central",
+      "countMeasure": {
+        "unit": "berry",
+        "plural": "berries",
+        "grams": 18,
+        "source": "USDA FoodData Central"
+      },
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 140
+    },
+    {
+      "fdcId": 168398,
+      "id": "generic-frozen-corn",
+      "oldName": "Frozen corn",
+      "state": "frozen",
+      "cupGrams": 164,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5
+    },
+    {
+      "fdcId": 168410,
+      "id": "generic-frozen-edamame",
+      "oldName": "Frozen edamame",
+      "state": "frozen",
+      "cupGrams": 155,
+      "cupSource": "Curated household default",
+      "defaultUnit": "cup",
+      "defaultAmount": 0.5,
+      "servingGrams": 78
+    }
+  ]
+}

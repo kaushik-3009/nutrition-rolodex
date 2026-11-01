@@ -54,6 +54,7 @@ local development environment, then run against the running server:
 python3 tests/browser_smoke.py
 python3 tests/menu_walkthrough.py http://127.0.0.1:8000
 python3 tests/browser_walkthrough.py
+python3 tests/measure_walkthrough.py
 python3 tests/audit_walkthrough.py
 python3 tests/cross_browser.py
 ```
@@ -62,7 +63,7 @@ The test uses `/usr/bin/chromium` by default; set `CHROMIUM_PATH` for another
 installation. It exercises adding/merging foods, scaling totals, editing,
 invalid inputs, persistence, undo, export, missing nutrient coverage, search,
 source portions, filters, mobile layout and the About page. The GitHub Pages
-workflow runs the Node checks and all five browser scripts before deploying.
+workflow runs the Node checks and all six browser scripts before deploying.
 The full walkthrough repeats five-food search → quantity → add flows at 1440,
 1024, 768, 390 and 320 CSS pixels, checks desktop/mobile layout and keyboard
 entry, and verifies exported amounts and calories against the selected foods.
@@ -94,8 +95,9 @@ shows a dash. Folate total and folate DFE are separate; only DFE is compared wit
 the folate Daily Value. Vitamin A uses RAE. Niacin in mg is not treated as niacin
 equivalents, and protein %DV is not inferred from unmeasured protein quality.
 Energy prefers USDA nutrient 1008, then Atwater general (2047), then specific
-(2048). Source portion weights are used directly; no unsupported cup or piece
-weights are invented. Weigh the edible portion in the same preparation state as
+(2048). Measure buttons use source portion weights first, with compatible household
+measures restored from the original catalog. Their source or estimate status is
+kept in the measure metadata and button tooltip. Weigh the edible portion in the same preparation state as
 the selected record.
 
 The expanded dataset is historical: it does not verify current branded labels,
@@ -191,3 +193,21 @@ python3 tests/capture_screenshots.py http://127.0.0.1:8000 /tmp/pantry-screensho
 
 The screenshot pass merges duplicate food-group names only in the interface;
 source food metadata and nutrient values are preserved.
+
+## Food measurement controls
+
+Each food has direct unit buttons for its available grams, cups, spoons and counts.
+The amount field accepts decimals, fractions (`1/4`), mixed fractions (`1 1/2`)
+and fraction glyphs (`½`). Common amounts are one-tap buttons. Food selection and
+Reset restore its useful household default; switching units preserves the same
+edible weight. The daily menu retains the selected measure alongside grams.
+
+`measures.js` builds options from USDA portions and the compatible earlier
+household measures in `data/household-measures.json`. The browser payload
+`data/household-measures.js` is generated from that JSON. Household estimates are
+not applied to incompatible preparation states. Unknown weights remain grams-only.
+Cup-to-spoon conversions use US measures (16 tablespoons per cup). The label and
+daily totals group macronutrients, vitamins, minerals and other nutrients separately.
+
+The measurement walkthrough exercises rice, dry lentils, oil, eggs, fraction entry,
+unit round trips, reload persistence and label-height matching in a real browser.

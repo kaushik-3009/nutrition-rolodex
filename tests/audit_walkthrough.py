@@ -51,21 +51,17 @@ with sync_playwright() as p:
     assert page.locator('#empty-day-preview').is_visible()
     values=page.locator('#group-select option').evaluate_all('(options)=>options.map(o=>o.value)')
     assert 'Pulses' in values and 'Legumes and Legume Products' not in values
-    # Native portions retain their selected description until the amount changes.
+    # Source measures are buttons; fractions scale in the selected unit.
     page.locator('#catalog-search').fill('carrots')
     page.locator('.result-card').first.click()
-    option=page.locator('#source-portion option').nth(1)
-    grams=option.get_attribute('value')
-    page.locator('#source-portion').select_option(grams)
-    assert page.locator('#source-portion').input_value()==grams
-    assert float(page.locator('#amount-input').input_value())==float(grams)
-    assert 'USDA reference portion:' in page.locator('#measure-provenance').inner_text()
-    page.locator('#increase').click()
-    assert page.locator('#source-portion').input_value()==''
-    page.locator('#source-portion').select_option(grams)
+    assert page.locator('#source-portion').count()==0
+    page.locator('[data-unit=cup]').click()
+    page.locator('#amount-input').fill('1/2')
+    assert '½' in page.locator('#serving-size').inner_text()
+    assert page.locator('[data-unit=cup]').get_attribute('aria-pressed')=='true'
     page.locator('#reset-measure').click()
-    assert page.locator('#source-portion').input_value()==''
-    assert page.locator('#amount-input').input_value()=='100'
+    page.locator('[data-unit=g]').click()
+    page.locator('#amount-input').fill('100')
     page.locator('#add-to-menu').click()
     assert page.locator('.daily-label').is_visible()
     assert not page.locator('#empty-day-preview').is_visible()

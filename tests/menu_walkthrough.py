@@ -69,6 +69,7 @@ with sync_playwright() as p:
     page.locator("#clear-menu").click()
     page.locator("#catalog-search").fill("rice")
     page.locator(".result-card").first.click()
+    page.locator("[data-unit=g]").click()
     page.locator("#amount-input").fill("100")
     page.locator("#add-to-menu").click()
     assert "Added 100 g." in page.locator("#add-feedback").inner_text()
@@ -84,6 +85,7 @@ with sync_playwright() as p:
     # food is removed, and export cannot bypass either a blank or negative edit.
     page.locator("#catalog-search").fill("rice")
     page.locator(".result-card").first.click()
+    page.locator("[data-unit=g]").click()
     page.locator("#amount-input").fill("100")
     page.locator("#add-to-menu").click()
     page.locator("#amount-input").fill("125")
@@ -92,6 +94,7 @@ with sync_playwright() as p:
     assert page.locator("[data-menu-grams]").input_value() == "225"
     page.locator("#catalog-search").fill("beans")
     page.locator(".result-card").first.click()
+    page.locator("[data-unit=g]").click()
     page.locator("#add-to-menu").click()
     assert page.locator(".menu-item").count() == 2
     first_name = page.locator(".menu-item strong").first.inner_text()
@@ -99,6 +102,7 @@ with sync_playwright() as p:
     page.locator("[data-menu-grams]").nth(1).fill("-5")
     page.locator("#catalog-search").fill("milk")
     page.locator(".result-card").first.click()
+    page.locator("[data-unit=g]").click()
     page.locator("#add-to-menu").click()
     assert page.locator(".menu-item").count() == 3
     assert page.locator(".menu-item strong").first.inner_text() == first_name

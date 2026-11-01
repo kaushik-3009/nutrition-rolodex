@@ -11,23 +11,73 @@
   let previous = null;
   let editSession = null;
   const invalidDrafts = new Map();
-  let storageMessage = "Saved in this browser on this device. This is a reusable day plan, not a dated food log.";
+  let storageMessage = "Saved on this device.";
+  function measureOptions(food) {
+    try { return window.PantryMeasures?.optionsFor(food) || []; } catch { return []; }
+  }
+  function findMeasure(food, id) {
+    if (typeof id !== "string" || id.length > 80) return null;
+    return measureOptions(food).find(option => option && option.id === id) || null;
+  }
+  function cleanLabel(label) {
+    return typeof label === "string" ? label.replace(/[\u0000-\u001f\u007f]/g, " ").replace(/\s+/g, " ").trim().slice(0, 120) : "";
+  }
+  function formatMeasureAmount(value) {
+    const formatted = window.PantryMeasures?.formatAmount?.(value);
+    return typeof formatted === "string" && formatted ? formatted : String(Number(value.toFixed(2)));
+  }
+  function describeMeasure(option, amount, labelHint = "") {
+    if (option?.unit === "g") return `${Number(amount.toFixed(8))} g`;
+    const optionLabel = cleanLabel(option ? unitLabel(option,amount) : "");
+    if (optionLabel) return `${formatMeasureAmount(amount)} ${optionLabel}`;
+    const unit = cleanLabel(option?.unit || "");
+    if (unit) return `${formatMeasureAmount(amount)} ${unit}`;
+    const label = cleanLabel(labelHint || "");
+    if (!label) return "";
+    return label.replace(/^[\d./¼½⅓⅔¾]+/, formatMeasureAmount(amount));
+  }
+  function measureData(food, id, amount, label) {
+    const option = findMeasure(food, id);
+    if (!option || !Number.isFinite(amount) || amount <= 0 || amount > maxGrams) return null;
+    return { measureId: option.id, amount, measureLabel: describeMeasure(option, amount, label) };
+  }
+  function setMeasureFromGrams(entry) {
+    const food = byId.get(entry.foodId);
+    const option = findMeasure(food, entry.measureId) || findMeasure(food, "g");
+    const gramsPerUnit = Number(option?.grams);
+    if (!option || !Number.isFinite(gramsPerUnit) || gramsPerUnit <= 0) {
+      delete entry.measureId; delete entry.amount; delete entry.measureLabel;
+      return;
+    }
+    const amount = entry.grams / gramsPerUnit;
+    entry.measureId = option.id;
+    entry.amount = amount;
+    entry.measureLabel = describeMeasure(option, amount);
+  }
+  function sanitizeEntry(entry) {
+    if (!entry || !byId.has(entry.foodId) || !Number.isFinite(entry.grams) || entry.grams <= 0 || entry.grams > maxGrams) return null;
+    const food = byId.get(entry.foodId);
+    const option = findMeasure(food, entry.measureId);
+    const measure = option ? measureData(food, option.id, entry.grams / option.grams, entry.measureLabel) : null;
+    return { foodId: entry.foodId, grams: entry.grams, ...(measure || {}) };
+  }
+  function sanitizeEntries(source) { return source.map(sanitizeEntry).filter(Boolean).slice(0, 500); }
   try {
     const saved = JSON.parse(localStorage.getItem(storageKey) || "null");
     if (saved !== null) {
       if (saved.version !== 1 || !Array.isArray(saved.entries)) throw new Error("Unrecognized saved day");
-      entries = saved.entries.filter(entry => entry && byId.has(entry.foodId) && Number.isFinite(entry.grams) && entry.grams > 0 && entry.grams <= maxGrams).slice(0, 500).map(entry => ({ foodId: entry.foodId, grams: entry.grams }));
-      if (entries.length !== saved.entries.length) storageMessage = "Some saved foods were unavailable or invalid and were left out. Review your day before using the totals.";
+      entries = sanitizeEntries(saved.entries);
+      if (entries.length !== saved.entries.length) storageMessage = "Some saved foods were unavailable.";
     }
   } catch {
-    storageMessage = "Your saved day could not be read. Changes work for this session; download a copy to keep them.";
+    storageMessage = "Saved day could not be read.";
   }
 
   function save() {
     try {
       localStorage.setItem(storageKey, JSON.stringify({ version: 1, entries }));
-      if (!storageMessage.startsWith("Some saved foods")) storageMessage = "Saved in this browser on this device. This is a reusable day plan, not a dated food log.";
-    } catch { storageMessage = "Browser storage is unavailable. Download your day to keep a copy; it may be lost on reload."; }
+      if (!storageMessage.startsWith("Some saved foods")) storageMessage = "Saved on this device.";
+    } catch { storageMessage = "Storage unavailable. Download a copy."; }
     find("#menu-storage-status").textContent = storageMessage;
   }
   window.addEventListener("storage", event => {
@@ -36,13 +86,13 @@
       const saved = event.newValue === null ? null : JSON.parse(event.newValue);
       if (saved !== null && (saved.version !== 1 || !Array.isArray(saved.entries))) throw new Error("Unrecognized saved day");
       const source = saved?.entries || [];
-      entries = source.filter(entry => entry && byId.has(entry.foodId) && Number.isFinite(entry.grams) && entry.grams > 0 && entry.grams <= maxGrams).slice(0, 500).map(entry => ({ foodId: entry.foodId, grams: entry.grams }));
+      entries = sanitizeEntries(source);
       storageMessage = entries.length === source.length
-        ? "Updated from another tab. Saved in this browser on this device."
-        : "Some saved foods were unavailable or invalid and were left out. Review your day before using the totals.";
+        ? "Updated from another tab."
+        : "Some saved foods were unavailable.";
     } catch {
       entries = [];
-      storageMessage = "The saved day changed in another tab but could not be read. Reload to review it.";
+      storageMessage = "Saved day could not be read.";
     }
     previous = null;
     editSession = null;
@@ -63,7 +113,7 @@
       input.setAttribute("aria-invalid", "true");
       updateRowError(input, true);
       find("#menu-input-status").hidden = false;
-      find("#menu-input-status").textContent = "This amount is invalid. Daily totals still use the last valid amount; correct the grams to update them.";
+      find("#menu-input-status").textContent = "Invalid amount. Totals use the last valid value.";
       return false;
     }
     input.setCustomValidity(""); input.removeAttribute("aria-invalid"); updateRowError(input, false);
@@ -76,6 +126,9 @@
         editSession.checkpointed = true;
       } else if (editSession?.input !== input) checkpoint();
       entries[index].grams = grams;
+      setMeasureFromGrams(entries[index]);
+      const measureText = input.closest(".menu-item").querySelector(".menu-measure");
+      if (measureText) measureText.textContent = entryMeasureText(entries[index]);
       save();
       notify(`${entries.length} ${entries.length === 1 ? "food" : "foods"} in your day`);
       renderTotals();
@@ -86,6 +139,7 @@
   }
   function notify(message) { find("#menu-summary").textContent = message; }
   function gramsText(grams) { return `${Number(grams.toFixed(2))} g`; }
+  function entryMeasureText(entry) { return entry.measureLabel ? `${entry.measureLabel} · ${gramsText(entry.grams)}` : gramsText(entry.grams); }
   function amount(summary) {
     if (summary.value === null) return "—";
     const precision = summary.unit === "kcal" ? 0 : summary.value >= 10 ? 0 : summary.value >= 1 ? 1 : 3;
@@ -94,7 +148,7 @@
     return `${summary.complete ? "" : "≥ "}${number}${summary.unit === "kcal" ? "" : ` ${summary.unit}`}`;
   }
   function coverage(summary) {
-    return summary.total === 0 ? "" : summary.complete ? "" : `${summary.known}/${summary.total} foods report this nutrient`;
+    return summary.total === 0 || summary.known === 0 || summary.complete ? "" : `${summary.known}/${summary.total} foods`;
   }
   function renderTotals() {
     const result = PantryNutrition.aggregateMenu(foods, entries);
@@ -102,11 +156,16 @@
     find("#day-calories").textContent = amount(result.totals.calories);
     find("#day-calorie-coverage").textContent = coverage(result.totals.calories);
     find("#menu-nutrition-status").textContent = `${result.itemCount} foods, ${Number(result.totalGrams.toFixed(2))} grams. Daily calories: ${amount(result.totals.calories)}. ${coverage(result.totals.calories)}`;
-    find("#day-nutrients").innerHTML = nutrientRows.map(([key, label, , hasDV, indent], index) => {
-      const summary = result.totals[key];
-      const daily = summary.complete && hasDV ? dvValue(key, summary.value) : "—";
-      const section = index === 0 ? '<div class="section-row"><dt>Macronutrients</dt><dd></dd></div>' : index === 10 ? '<div class="section-row"><dt>Vitamins &amp; minerals</dt><dd></dd></div>' : "";
-      return `${section}<div class="${indent ? "indent" : ""}"><dt>${indent ? escape(label) : `<b>${escape(label)}</b>`} ${amount(summary)}${coverage(summary) ? `<small class="coverage-note">${coverage(summary)}</small>` : ""}</dt><dd>${daily}</dd></div>`;
+    const sections = typeof nutrientSections !== "undefined" ? nutrientSections : [{ label: "Macronutrients", rows: nutrientRows.slice(0, 10) }, { label: "Vitamins & minerals", rows: nutrientRows.slice(10) }];
+    find("#day-nutrients").innerHTML = sections.map(section => {
+      const heading = `<div class="section-row"><dt>${escape(section.label)}</dt><dd></dd></div>`;
+      const rows = section.rows.map(([key, label, , hasDV, indent]) => {
+        const summary = result.totals[key];
+        const daily = summary.complete && hasDV ? dvValue(key, summary.value) : "—";
+        const note = coverage(summary);
+        return `<div class="${indent ? "indent" : ""}"><dt>${indent ? escape(label) : `<b>${escape(label)}</b>`} ${amount(summary)}${note ? `<small class="coverage-note">${note}</small>` : ""}</dt><dd>${daily}</dd></div>`;
+      }).join("");
+      return heading + rows;
     }).join("");
   }
   function updateRowError(input, invalid) {
@@ -122,11 +181,12 @@
     find("#menu-items").innerHTML = entries.map((entry, index) => {
       const food = byId.get(entry.foodId);
       const draft = invalidDrafts.get(entry.foodId);
-      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape(foodGroup(food))} · ${escape(titleState(food.state))}</p></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${draft === undefined ? entry.grams : escape(draft)}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" ${draft === undefined ? "" : 'aria-invalid="true"'} required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
+      const measure = entryMeasureText(entry);
+      return `<li class="menu-item"><div><strong>${escape(food.name)}</strong><p>${escape([foodGroup(food),titleState(food.state)].filter(Boolean).join(" · "))}</p><small class="menu-measure">${escape(measure)}</small></div><label>Edible portion (g)<input type="number" min="0.01" max="${maxGrams}" step="any" value="${draft === undefined ? entry.grams : escape(draft)}" data-menu-grams="${index}" aria-label="Grams of ${escape(food.name)}" ${draft === undefined ? "" : 'aria-invalid="true"'} required></label><button type="button" class="remove-menu" data-remove="${index}" aria-label="Remove ${escape(food.name)}">Remove</button></li>`;
     }).join("");
     document.querySelectorAll("[data-menu-grams][aria-invalid=true]").forEach(input => updateRowError(input, true));
     find("#menu-empty").hidden = true;
-    find("#menu-storage-status").hidden = entries.length === 0 && storageMessage.startsWith("Saved in this browser");
+    find("#menu-storage-status").hidden = entries.length === 0 && storageMessage.startsWith("Saved on this device");
     find(".daily-label").hidden = entries.length === 0;
     find("#empty-day-preview").hidden = entries.length > 0;
     find("#clear-menu").hidden = entries.length === 0;
@@ -141,14 +201,20 @@
     renderTotals();
   }
   window.addEventListener("pantry:add-food", event => {
-    const { foodId, grams } = event.detail || {};
+    const { foodId, grams, measureId, amount: selectedAmount, measureLabel } = event.detail || {};
     if (!byId.has(foodId) || !Number.isFinite(grams) || grams <= 0 || grams > maxGrams) { showToast("Choose a valid food amount before adding it."); return; }
     const existing = entries.find(entry => entry.foodId === foodId);
     if (existing && existing.grams + grams > maxGrams) { showToast("That amount is too large. Review the grams in your day."); return; }
     if (!existing && entries.length >= 500) { showToast("Your day has reached the 500 food limit."); return; }
     checkpoint();
-    if (existing) existing.grams += grams;
-    else entries.push({ foodId, grams });
+    const selectedMeasure = measureData(byId.get(foodId), measureId, selectedAmount, measureLabel);
+    if (existing) {
+      existing.grams += grams;
+      if (selectedMeasure && selectedMeasure.measureId === existing.measureId) {
+        existing.amount += selectedMeasure.amount;
+        existing.measureLabel = describeMeasure(findMeasure(byId.get(foodId), existing.measureId), existing.amount, selectedMeasure.measureLabel);
+      } else setMeasureFromGrams(existing);
+    } else entries.push({ foodId, grams, ...(selectedMeasure || {}) });
     save(); render();
     const total = entries.find(entry => entry.foodId === foodId).grams;
     find("#add-feedback").textContent = `Added ${gramsText(grams)}. Food now totals ${gramsText(total)} in your day.`;
@@ -185,7 +251,7 @@
     const invalidDraft = find('#menu-items [data-menu-grams]:invalid');
     if (invalidDraft) {
       find("#menu-input-status").hidden = false;
-      find("#menu-input-status").textContent = "Correct the invalid gram amount before exporting your day.";
+      find("#menu-input-status").textContent = "Fix the invalid amount before downloading.";
       invalidDraft.focus();
       invalidDraft.reportValidity();
       return;
