@@ -34,7 +34,8 @@ jobs:
           node --test tests/*.test.cjs
           node scripts/audit-catalog.mjs
           node --check app.js
-          node --check menu.js
+          node --check search.js
+          node --check measures.js
 
       - name: Set up Python for browser walkthroughs
         uses: actions/setup-python@v5
@@ -70,12 +71,7 @@ jobs:
           else:
               raise RuntimeError('Static server did not become ready')
           PYTHON
-          python tests/browser_smoke.py
-          python tests/menu_walkthrough.py http://127.0.0.1:8000
-          python tests/browser_walkthrough.py
-          python tests/measure_walkthrough.py
-          python tests/audit_walkthrough.py
-          python tests/cross_browser.py
+          python tests/tracker_walkthrough.py http://127.0.0.1:8000
 
       - name: Configure Pages
         uses: actions/configure-pages@v5

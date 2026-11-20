@@ -109,6 +109,38 @@ const portionOptions = (fdcId, state) => (portionsByFood.get(fdcId) || []).map((
   if (state === "cooked" && /\b(raw|uncooked|dry|dried)\b/i.test(p.label)) return false;
   return true;
 });
+// Ordered preparation-state rules. "Cooked, dry heat" is cooked, not dry;
+// "dry mix, prepared" is a prepared dish; uncooked grains and pulses are dry.
+const COOKING = /dry heat|\b(cooked|boiled|baked|fried|roasted|grilled|broiled|braised|stewed|simmered|microwaved|scrambled|poached|pan-broiled|pan-fried|steamed|toasted|stir-fried|heated|reheated|smoked)\b/i;
+const DRY_GROUPS = /^(Cereal Grains and Pasta|Legumes and Legume Products|Breakfast Cereals|Grains|Pulses)$/;
+function classifyState(description, category, kcal) {
+  const text = String(description).replace(/\(Includes foods for USDA's Food Distribution Program\)/gi, "");
+  const prepared = /\bprepared\b/i.test(text) && !/\b(commercially|industrially) prepared\b/i.test(text) && !/\bunprepared\b/i.test(text);
+  if (/\bfrozen\b/i.test(text)) return /\bunprepared\b/i.test(text) || !(COOKING.test(text) || prepared) ? "frozen" : "cooked";
+  if (/\bcanned\b/i.test(text)) return "canned";
+  if (/\bdry roasted\b/i.test(text)) return "as sold";
+  if (COOKING.test(text) || prepared) return "cooked";
+  if (/\b(dried|dehydrated|dry)\b/i.test(text)) return "dry";
+  if (/\buncooked\b/i.test(text)) return DRY_GROUPS.test(category) || kcal > 250 ? "dry" : "raw";
+  if (/\braw\b/i.test(text)) return DRY_GROUPS.test(category) && kcal > 250 ? "dry" : "raw";
+  return "as sold";
+}
+// Sparse Foundation/FNDDS records: fill only their missing nutrients from the
+// closest SR Legacy record, and record which keys came from where.
+const BACKFILL = {
+  "generic-white-rice-long-grain": 169756, "generic-rolled-oats": 173904, "generic-whole-wheat-flour": 168893,
+  "generic-lentils": 172420, "generic-chickpeas-dry": 173756, "generic-kale-raw": 168421, "generic-broccoli-raw": 170379,
+  "generic-cauliflower-raw": 169986, "generic-sweet-potato-raw": 168482, "generic-squash-summer-zucchini-includes-skin-raw": 169291,
+  "generic-celery": 169988, "generic-garlic": 169230, "generic-strawberries-raw": 167762, "generic-blueberries-raw": 171711,
+  "generic-raspberries": 167755, "generic-kiwifruit": 168153, "generic-chicken-broilers-or-fryers-breast-meat-only-raw": 171077,
+  "generic-beef-ground-90-lean-meat-10-fat-raw": 174030, "generic-pork-fresh-loin-tenderloin-separable-lean-only-raw": 168249,
+  "generic-ground-turkey": 172850, "generic-cod": 171955, "generic-yogurt-greek-plain-whole-milk": 171304,
+  "generic-cheese-cheddar": 173414, "generic-nuts-almonds-whole-raw": 170567, "generic-nuts-walnuts-english-halves-raw": 170187,
+  "generic-peanuts-all-types-raw": 172430, "generic-flaxseed": 169414, "generic-pumpkin-seeds": 170556, "generic-pecans": 170182,
+  "generic-canned-black-beans": 175238, "generic-canned-chickpeas": 173801, "generic-canned-tomatoes": 170051,
+  "generic-canned-green-beans": 169143, "generic-canned-peas": 170015,
+  "generic-milk-whole-3-25-milkfat-with-added-vitamin-d": 171265, "generic-milk-reduced-fat-2": 171267
+};
 const nutrientUnitByKey = Object.fromEntries(allNutrientKeys.map((key) => [key, Object.values(nutrientMap).find(([mappedKey]) => mappedKey === key)[1]]));
 const sourceFoods = foods.map((food) => {
   const per100g = Object.fromEntries(allNutrientKeys.map((key) => [key, { value: null, unit: Object.values(nutrientMap).find(([k]) => k === key)[1] }]));
@@ -126,7 +158,7 @@ const sourceFoods = foods.map((food) => {
   }
   const description = food.description;
   const category = categories.get(food.food_category_id)?.description || "Other foods";
-  const state = /\bfrozen\b/i.test(description) ? "frozen" : /\bcanned\b/i.test(description) ? "canned" : /\b(dried|dry)\b/i.test(description) ? "dry" : /\b(cooked|boiled|baked|fried|roasted|grilled|steamed)\b/i.test(description) ? "cooked" : /\b(raw|uncooked)\b/i.test(description) ? "raw" : "as sold";
+  const state = classifyState(description, category, per100g.calories.value);
   return {
     id: `fdc-${food.fdc_id}`, name: description, aliases: [], group: category, state, sourceType: "sr_legacy",
     source: "USDA FoodData Central SR Legacy", sourceDataset: "FoodData Central SR Legacy, 2018-04",
@@ -137,7 +169,6 @@ const sourceFoods = foods.map((food) => {
   };
 });
 
-const inferState = (description, portions = []) => /\bfrozen\b/i.test(description) ? "frozen" : /\bcanned\b/i.test(description) ? "canned" : /\b(dried|dry)\b/i.test(description) ? "dry" : /\b(cooked|boiled|baked|fried|roasted|grilled|steamed)\b/i.test(description) ? "cooked" : /\b(raw|uncooked)\b/i.test(description) ? "raw" : portions.some((p) => /\bcooked\b/i.test(p.portionDescription || "")) ? "cooked" : "as sold";
 const apiPortions = (food, state) => (food.foodPortions || []).map((p) => {
   const sourceUnit = p.measureUnit?.name || null;
   const description = (p.portionDescription || "").trim();
@@ -160,8 +191,6 @@ const archiveById = new Map(sourceFoods.map((food) => [String(food.fdcId), food]
 const curated = curatedSource.foods.map((food) => {
   const dataType = food.dataType || "Foundation";
   const archiveRecord = archiveById.get(String(food.fdcId));
-  const state = archiveRecord?.state || inferState(food.description, food.foodPortions || []);
-  const portionOptions = archiveRecord?.portionOptions || apiPortions(food, state);
   const per100g = archiveRecord?.per100g || Object.fromEntries(allNutrientKeys.map((key) => [key, { value: null, unit: nutrientUnitByKey[key] }]));
   if (!archiveRecord) {
     const selectedIds = {};
@@ -175,20 +204,31 @@ const curated = curatedSource.foods.map((food) => {
       const value = numberOrNull(n.amount);
       if (value === null) continue;
       const currentId = selectedIds[key];
-      const rank = ({ 1008: 3, 2047: 2, 2048: 1 })[n.nutrientId] || 1;
-      const currentRank = ({ 1008: 3, 2047: 2, 2048: 1 })[currentId] || 0;
+      const rank = ({ 1008: 3, 2048: 2, 2047: 1 })[n.nutrientId] || 1;
+      const currentRank = ({ 1008: 3, 2048: 2, 2047: 1 })[currentId] || 0;
       if (currentId === undefined || rank > currentRank) {
         per100g[key] = { value, unit };
         selectedIds[key] = n.nutrientId;
       }
     }
   }
+  const group = food.catalogGroup || archiveRecord?.group || food.foodCategory || "Other foods";
+  const state = archiveRecord?.state || classifyState(food.description, food.foodCategory || group, per100g.calories.value);
+  const portionOptions = archiveRecord?.portionOptions || apiPortions(food, state);
+  let backfill = null;
+  if (!archiveRecord && BACKFILL[food.catalogId]) {
+    const donor = archiveById.get(String(BACKFILL[food.catalogId]));
+    if (!donor) throw new Error(`Backfill donor FDC ${BACKFILL[food.catalogId]} missing for ${food.catalogId}`);
+    const keys = allNutrientKeys.filter((key) => per100g[key].value === null && donor.per100g[key].value !== null);
+    for (const key of keys) per100g[key] = { value: donor.per100g[key].value, unit: donor.per100g[key].unit };
+    if (keys.length) backfill = { fdcId: donor.fdcId, description: donor.sourceDescription, keys };
+  }
   const sourceDescription = archiveRecord?.sourceDescription || food.description;
   const record = {
     id: food.catalogId,
     name: sourceDescription,
     aliases: food.catalogAliases || [],
-    group: food.catalogGroup || archiveRecord?.group || food.foodCategory || "Other foods",
+    group,
     state,
     sourceType: archiveRecord ? "sr_legacy" : food.catalogSourceType,
     source: "USDA FoodData Central",
@@ -202,7 +242,8 @@ const curated = curatedSource.foods.map((food) => {
     tbspGrams: null, tbspSource: null,
     defaultUnit: "g", defaultAmount: 100, countMeasure: null,
     portionOptions,
-    per100g
+    per100g,
+    ...(backfill ? { backfill } : {})
   };
   return record;
 });

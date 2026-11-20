@@ -20,9 +20,9 @@
   "curatedDuplicateRowsRemoved": 3,
   "nutrientValuesReconciled": 221511,
   "missingNutrientCellsReconciled": 51244,
-  "sourcePortionRowsReconciled": 14040,
-  "curatedNutrientValuesReconciled": 2686,
-  "curatedMissingNutrientCellsReconciled": 989,
+  "sourcePortionRowsReconciled": 14018,
+  "curatedNutrientValuesReconciled": 3223,
+  "curatedMissingNutrientCellsReconciled": 452,
   "curatedSourcePortionRowsReconciled": 254,
   "nutrientMappings": [
     {

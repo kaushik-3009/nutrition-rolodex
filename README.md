@@ -2,7 +2,7 @@
 
 # Pantry Index
 
-A personal catalog of nutrition labels, built so I can plan my nutrition more easily and never google "xyz nutrition" again.
+Search a food, pick a real portion, and see your whole day add up — built so I never google "xyz nutrition" again.
 
 [![Static site](https://img.shields.io/badge/site-static-244c3a?style=flat-square)](https://kaushik-3009.github.io/nutrition-rolodex/)
 [![Vanilla JavaScript](https://img.shields.io/badge/frontend-vanilla%20JavaScript-f7df1e?style=flat-square&logo=javascript&logoColor=111111)](https://github.com/kaushik-3009/nutrition-rolodex)
@@ -23,89 +23,48 @@ Pantry Index solves this problem for me, and I hope it does for you too. It give
 
 ## Features
 
-- Search 7,857 source-backed foods by name, words, group, or preparation state.
-- Scale a food label by edible grams or use an available USDA reference portion.
-- Add beside the quantity field, then use Search next food to build a menu quickly.
-- Search within a food group or use the main search across all groups and preparations.
-- Add foods to a daily menu, adjust gram quantities, remove items, and undo edits or clearing.
-- See all selected foods combined in one nutrition label, with nutrient coverage and general Daily Values.
-- Save a reusable day plan in this browser and download its entries and totals as JSON.
+- **One ranked search** over 7,857 USDA foods. Everyday staples come first ("rice" → cooked rice, "eggs" → whole egg), plurals and common synonyms work (chickpeas/garbanzo, curd/yogurt, dal/lentils, ketchup/catsup), and group names no longer cause false matches.
+- **Real portions for each food.** Every usable USDA portion for that exact record — 1 medium banana, 1 slice, 1 breast, 1 cup chopped, 1 fl oz — plus grams and ounces. Spoon sizes are only derived from a plain cup (oil, milk, flour), never "1 tbsp of banana". Sensible defaults: 1 large egg, 1 tbsp olive oil, 1 slice of bread, 3 oz cooked meat.
+- **Daily log by meal** (breakfast, lunch, dinner, snacks), saved per date in this browser. Look back with ‹ ›, copy a previous day, edit or remove entries with undo.
+- **Day summary** of calories and protein/carbs/fat/fiber against your own goals, key vitamins and minerals as % of Daily Value, and a full Nutrition Facts label for the day or for any single portion.
+- Keyboard friendly: <kbd>/</kbd> focuses search, <kbd>Enter</kbd> opens the top result, arrow keys move through results and change amounts. Fractions like `1/2` and `1 1/2` work.
 
 ## Run and test
 
-The application has no package dependencies, build step, backend, or API key requirement.
-From the checkout:
+No dependencies, build step, backend or API key. From the checkout:
 
 ```sh
 python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open the site with your local browser. Calculation and catalog checks use Node.js 24:
+Calculation, catalog, portion and search checks (Node.js 24):
 
 ```sh
 node --test tests/*.test.cjs
 node scripts/audit-catalog.mjs --out /tmp/catalog-audit.json
 ```
 
-For browser integration checks, install Python Playwright and Chromium in your
-local development environment, then run against the running server:
+Browser walkthrough (Python Playwright + Chromium; set `CHROMIUM_PATH` if needed) against the running server, at desktop, phone and 320 px widths:
 
 ```sh
-python3 tests/browser_smoke.py
-python3 tests/menu_walkthrough.py http://127.0.0.1:8000
-python3 tests/browser_walkthrough.py
-python3 tests/measure_walkthrough.py
-python3 tests/audit_walkthrough.py
-python3 tests/cross_browser.py
+python3 tests/tracker_walkthrough.py http://127.0.0.1:8000
 ```
 
-The test uses `/usr/bin/chromium` by default; set `CHROMIUM_PATH` for another
-installation. It exercises adding/merging foods, scaling totals, editing,
-invalid inputs, persistence, undo, export, missing nutrient coverage, search,
-source portions, filters, mobile layout and the About page. The GitHub Pages
-workflow runs the Node checks and all six browser scripts before deploying.
-The full walkthrough repeats five-food search → quantity → add flows at 1440,
-1024, 768, 390 and 320 CSS pixels, checks desktop/mobile layout and keyboard
-entry, and verifies exported amounts and calories against the selected foods.
+The GitHub Pages workflow runs all of these before deploying.
 
 ## Nutrition data and accuracy
 
-The catalog contains all **7,793 USDA SR Legacy foods** from the official April
-2018 CSV release, plus **64 additional FoodData Central records**. The original
-108 entries were checked against all 105 distinct FDC IDs in the official API;
-three duplicate representations were removed. Every display name now uses the
-actual source description, including preparation and cut/species qualifiers.
-See [the original-catalog audit](data/catalog-audit.json) for the identified
-problems and [the reconciliation manifest](data/sr-legacy-reconciliation.json)
-for source hashes, nutrient mappings and full-import verification counts.
+The catalog contains all **7,793 USDA SR Legacy foods** (April 2018 CSV release) plus **64 newer FoodData Central Foundation/FNDDS records** for common staples. Values are stored per 100 edible grams for 35 nutrients; missing values stay `null`, distinct from a reported zero. Portion weights are USDA's measured gram weights for that record.
 
-Corrections include cooked quinoa labeled dry, unspecified kidney beans labeled
-dry, unsupported meat/fish qualifiers, duplicate whole/split pulse records,
-unsupported household estimates, and folate DFE mislabeled as total folate.
-Current source values replace old rounded values. Original curated IDs are kept
-where possible; there is one record per FDC ID, rather than fabricated variants
-for cultivars or processing states that the source does not establish.
+A November 2026 accuracy audit spot-checked ~30 everyday foods against USDA values (all matched) and checked every record for impossible relationships. The importer now also:
 
-Each food stores 35 mapped nutrient quantities per 100 edible grams, including
-energy, macros, vitamins and minerals. **Not every nutrient is reported for every
-food.** Missing values remain `null`, distinct from reported zero. Daily totals
-show a known subtotal with `≥` and coverage when any selected food lacks that
-nutrient; the corresponding Daily Value is withheld. An entirely unknown total
-shows a dash. Folate total and folate DFE are separate; only DFE is compared with
-the folate Daily Value. Vitamin A uses RAE. Niacin in mg is not treated as niacin
-equivalents, and protein %DV is not inferred from unmeasured protein quality.
-Energy prefers USDA nutrient 1008, then Atwater general (2047), then specific
-(2048). Measure buttons use source portion weights first, with compatible household
-measures restored from the original catalog. Their source or estimate status is
-kept in the measure metadata and button tooltip. Weigh the edible portion in the same preparation state as
-the selected record.
+- **Fills gaps in sparse Foundation records.** 36 of them reported as few as 7–20 of 35 nutrients (the old default "white rice" had no saturated fat, sugars or vitamins). Only their *missing* nutrients are filled from the closest SR Legacy record, listed in `BACKFILL` in the importer; reported values are never replaced. Each such food carries a `backfill` record (donor FDC ID and keys), and the app says so in the food's details.
+- **Uses Atwater-specific energy (2048) before Atwater-general (2047)** for Foundation records, matching USDA's own preference. General factors overstated calories by 7–21% for nuts and some vegetables (almonds 626 → 584 kcal/100 g).
+- **Classifies preparation state with ordered rules.** About 700 records changed: "cooked, dry heat" fish is cooked (not dry), "dry mix, prepared with milk" is cooked, raw rice and pulses are dry, and frozen-then-cooked foods are cooked.
 
-The expanded dataset is historical: it does not verify current branded labels,
-guarantee a particular food's laboratory composition, cover every world food, or
-provide every nutrient for every record. Daily Values are general FDA references
-for adults and children 4 years and older, not personalized dietary requirements.
-Source reconciliation verifies identity, values, units, missing data and portion
-weights against the chosen source; it is not an independent laboratory analysis.
+Energy prefers USDA nutrient 1008, then 2048, then 2047. Folate total and folate DFE are separate; only DFE is compared with the Daily Value. Vitamin A uses RAE. Totals show `≥` with coverage when some foods lack a nutrient, and %DV is withheld for incomplete totals. Added sugars, iodine and biotin are hidden in the app because the sources report them for almost no foods.
+
+The data is historical reference data: it does not verify current branded labels or guarantee a particular food's composition. Daily Values are general FDA references for adults, not personal requirements.
 
 ## Rebuild the catalog
 
@@ -135,79 +94,28 @@ silently selecting the first API search result and overwriting the catalog.
 
 ## Under the hood
 
-The browser scales per-100 g values to the selected edible weight. `nutrition.js`
-validates units and sums unrounded values; `menu.js` handles the local day plan.
-Rounding happens only for display. Plans stay on the current browser/device;
-there is no account sync or automatic rollover to a new date. JSON download is
-an export, not an import/restore feature.
-
 ```mermaid
 flowchart LR
-    A[USDA FoodData Central] --> B[Catalog generator]
+    A[USDA SR Legacy + FDC snapshot] --> B[scripts/import-sr-legacy.mjs]
     B --> C[data/catalog-data.js]
-    C --> D[Search and filters]
-    C --> E[Measure conversion]
-    E --> F[Nutrition Facts label]
+    C --> D[search.js: ranking, synonyms, display names]
+    C --> E[measures.js: portions and defaults]
+    C --> F[nutrition.js: unit-checked totals]
+    D & E & F --> G[app.js: search, portion sheet, dated log, summary]
 ```
 
-State nuances: raw, dry, canned, and frozen versions of the same food are separate records because their nutrition differs.
-
-## Scope
-
-USDA reference foods include ingredients, prepared foods and historical restaurant/product records. Treat current package labels as the source for current branded products; a generic USDA food is not an interchangeable brand label.
+`nutrition.js` validates units and sums unrounded values; rounding happens only for display. The log is stored in `localStorage` (`pantry-index-v2`) as dated days of `{foodId, grams, measureId, amount, meal}`; the old single "day plan" is migrated into today on first load. Download exports a day as JSON with per-food amounts and totals.
 
 ## Tech
 
-Dependency-free: HTML, CSS, vanilla JavaScript. Data generated by `scripts/import-sr-legacy.mjs`. Deployed to GitHub Pages via GitHub Actions.
+Dependency-free HTML, CSS and vanilla JavaScript, deployed to GitHub Pages via GitHub Actions. Fonts are served locally from `public/fonts/` (OFL).
 
 ## Roadmap
 
-- Verified branded records
-- Barcode lookup
-- Meal templates, dated food logs and plan import
-- Optional personalized targets with clear source references
-- Contribution process with review trail
+- Verified branded records and barcode lookup
+- Saved meals / recipes (one tap for "my usual breakfast")
+- Import a downloaded day; optional sync across devices
 
 ## Disclaimer
 
 Reference tool, not medical advice.
-
-
-
-Typography is served locally from `public/fonts.css`; the bundled Google Fonts
-include their OFL licenses and a source/checksum manifest in `public/fonts/`.
-Browser testing covers Chromium desktop/mobile layouts and keyboard controls.
-`BROWSERS=firefox,webkit python3 tests/cross_browser.py` can additionally run
-those engines after installing their Playwright browsers and system dependencies.
-See [the detailed UI audit](tests/UI_AUDIT.md) for fixes, coverage and limitations.
-
-## Screenshot review
-
-Open [`review/index.html`](review/index.html) for 68 before/after screenshots
-across 17 UI states, each shown at desktop and phone widths with specific review
-notes. This gallery is separate from the app navigation. Reproduce captures with:
-
-```sh
-python3 tests/capture_screenshots.py http://127.0.0.1:8000 /tmp/pantry-screenshots
-```
-
-The screenshot pass merges duplicate food-group names only in the interface;
-source food metadata and nutrient values are preserved.
-
-## Food measurement controls
-
-Each food has direct unit buttons for its available grams, cups, spoons and counts.
-The amount field accepts decimals, fractions (`1/4`), mixed fractions (`1 1/2`)
-and fraction glyphs (`½`). Common amounts are one-tap buttons. Food selection and
-Reset restore its useful household default; switching units preserves the same
-edible weight. The daily menu retains the selected measure alongside grams.
-
-`measures.js` builds options from USDA portions and the compatible earlier
-household measures in `data/household-measures.json`. The browser payload
-`data/household-measures.js` is generated from that JSON. Household estimates are
-not applied to incompatible preparation states. Unknown weights remain grams-only.
-Cup-to-spoon conversions use US measures (16 tablespoons per cup). The label and
-daily totals group macronutrients, vitamins, minerals and other nutrients separately.
-
-The measurement walkthrough exercises rice, dry lentils, oil, eggs, fraction entry,
-unit round trips, reload persistence and label-height matching in a real browser.

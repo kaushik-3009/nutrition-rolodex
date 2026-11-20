@@ -33,3 +33,25 @@ test('every food can contribute to a menu without invalid values or incompatible
   assert.ok(result.totals.calories.value > 0);
   assert.equal(result.totals.iodine.complete, false, 'iodine gaps must remain visible');
 });
+
+test('preparation state follows the description', () => {
+  for (const food of foods) {
+    if (/dry heat/i.test(food.name)) assert.equal(food.state, 'cooked', food.name);
+    if (food.state === 'dry') assert.doesNotMatch(food.name, /\b(cooked|boiled|prepared with)\b/i, food.name);
+  }
+  assert.equal(foods.find(food => food.id === 'generic-white-rice-long-grain').state, 'dry');
+});
+
+test('backfilled values only fill nutrients the primary source left empty', () => {
+  const byFdc = new Map(foods.map(food => [food.fdcId, food]));
+  const filled = foods.filter(food => food.backfill);
+  assert.ok(filled.length >= 30);
+  for (const food of filled) {
+    const donor = byFdc.get(food.backfill.fdcId);
+    assert.ok(donor && donor.sourceType === 'sr_legacy', food.id);
+    for (const key of food.backfill.keys) assert.equal(food.per100g[key].value, donor.per100g[key].value, `${food.id} ${key}`);
+  }
+  const rice = foods.find(food => food.id === 'generic-white-rice-long-grain');
+  assert.notEqual(rice.per100g.satFat.value, null);
+  assert.ok(!rice.backfill.keys.includes('protein'), 'reported values are never replaced');
+});
