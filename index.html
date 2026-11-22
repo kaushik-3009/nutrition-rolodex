@@ -58,7 +58,7 @@
         <form class="search" id="search-form" role="search" autocomplete="off">
           <label class="sr-only" for="food-search">Search foods</label>
           <span class="search-icon" aria-hidden="true">⌕</span>
-          <input id="food-search" type="search" placeholder="Add a food — banana, eggs, rice…" enterkeyhint="search" aria-controls="results" aria-describedby="search-help" disabled />
+          <input id="food-search" type="search" placeholder="Add food: banana, eggs…" enterkeyhint="search" aria-controls="results" aria-describedby="search-help" disabled />
           <kbd class="search-kbd" aria-hidden="true">/</kbd>
         </form>
         <p id="search-help" class="sr-only">Results update as you type. Press Enter to open the top result.</p>
@@ -128,10 +128,10 @@
         <div class="sheet-head"><div><h2 id="goals-title">Daily goals</h2><p class="sheet-detail">Defaults are FDA Daily Values. Set your own targets.</p></div><button type="button" class="icon-button close" data-close aria-label="Close">✕</button></div>
         <div class="sheet-body goals-grid">
           <label>Calories <span>kcal</span><input name="calories" type="number" inputmode="numeric" min="500" max="10000" step="1" required /></label>
-          <label>Protein <span>g</span><input name="protein" type="number" inputmode="numeric" min="0" max="600" step="1" required /></label>
-          <label>Carbs <span>g</span><input name="carbs" type="number" inputmode="numeric" min="0" max="1200" step="1" required /></label>
-          <label>Fat <span>g</span><input name="fat" type="number" inputmode="numeric" min="0" max="500" step="1" required /></label>
-          <label>Fiber <span>g</span><input name="fiber" type="number" inputmode="numeric" min="0" max="200" step="1" required /></label>
+          <label>Protein <span>g</span><input name="protein" type="number" inputmode="numeric" min="1" max="600" step="1" required /></label>
+          <label>Carbs <span>g</span><input name="carbs" type="number" inputmode="numeric" min="1" max="1200" step="1" required /></label>
+          <label>Fat <span>g</span><input name="fat" type="number" inputmode="numeric" min="1" max="500" step="1" required /></label>
+          <label>Fiber <span>g</span><input name="fiber" type="number" inputmode="numeric" min="1" max="200" step="1" required /></label>
         </div>
         <div class="sheet-actions"><button type="button" class="ghost-button" id="goals-reset">Use FDA defaults</button><button type="submit" class="primary-button" value="save">Save goals</button></div>
       </form>

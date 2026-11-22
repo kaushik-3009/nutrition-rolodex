@@ -37,7 +37,7 @@
     chapati: ["roti"], roti: ["chapati"], chapatti: ["chapati"],
     pb: ["peanut"], oj: ["orange"], ketchup: ["catsup"], catsup: ["ketchup"],
     fry: ["fried"], fried: ["fry"], hotdog: ["frankfurter"], frank: ["frankfurter"],
-    mayo: ["mayonnaise"], doughnut: ["donut"], donut: ["doughnut"], yogourt: ["yogurt"]
+    mayo: ["mayonnaise"], latte: ["latte", "coffee"], cappuccino: ["cappuccino", "coffee"], coca: ["cola"], doughnut: ["donut"], donut: ["doughnut"], yogourt: ["yogurt"]
   };
 
   // Everyday words a source name omits. Matched on the source description.
@@ -87,7 +87,7 @@
     "fdc-168746", "fdc-173185", "fdc-171009", "fdc-174277", "fdc-170317", "fdc-172182", "fdc-167575",
     "fdc-173227", "fdc-174158", "fdc-169641", "fdc-174852", "fdc-167914", "fdc-172388", "fdc-173630",
     "fdc-173862", "fdc-168634", "fdc-173709", "generic-cheese-cheddar",
-    "generic-oranges-raw-all-commercial-varieties"
+    "generic-oranges-raw-all-commercial-varieties", "fdc-173905"
   ]);
   // Leading category words in source names; the next segment is the food.
   const CATEGORY_HEAD = /^(beverages|snacks|spices|babyfood|restaurant|fast foods|cereals ready-to-eat|cereals|alcoholic beverage|fish|nuts|seeds|oil|sugars|crustaceans|mollusks|game meat|cheese|bread|pasta|beef|pork|lamb|veal|chicken|turkey|beans|peas|lentils|rice|flour|salad dressing)$/i;
@@ -134,6 +134,8 @@
     let title = parts[0], rest = parts.slice(1);
     if (rest.length && DISPLAY_DROP.test(title)) { title = titleCase(rest[0]); rest = rest.slice(1); }
     if (rest.length && DISPLAY_JOIN.test(title)) { title = `${titleCase(title)}, ${rest[0]}`; rest = rest.slice(1); }
+    // "Pork, cured" says little; "Pork, cured, bacon" names the food.
+    if (rest.length && /, (cured|fresh)$/i.test(title)) { title = `${title}, ${rest[0]}`; rest = rest.slice(1); }
     return { title, detail: rest.join(", ") };
   }
 

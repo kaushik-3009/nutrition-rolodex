@@ -266,3 +266,4 @@ h2 { font-family: var(--serif); font-size: 1.35rem; font-weight: 650; letter-spa
   .icon-button { width: 36px; }
 }
 .preview-macros b { white-space: nowrap; }
+@media (min-width: 900px) { .toast { left: auto; right: 24px; transform: translateY(16px); } .toast.visible { transform: none; } }

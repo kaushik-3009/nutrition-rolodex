@@ -19,7 +19,7 @@
     ["Vitamins", [["vitaminA", "Vitamin A (RAE)", "mcg", 1], ["vitaminC", "Vitamin C", "mg", 1], ["vitaminD", "Vitamin D", "mcg", 1], ["vitaminE", "Vitamin E", "mg", 1], ["vitaminK", "Vitamin K", "mcg", 1], ["thiamin", "Thiamin (B1)", "mg", 1], ["riboflavin", "Riboflavin (B2)", "mg", 1], ["niacin", "Niacin (B3)", "mg", 0], ["vitaminB6", "Vitamin B6", "mg", 1], ["folateDFE", "Folate (DFE)", "mcg", 1], ["folate", "Folate (total)", "mcg", 0, 1], ["vitaminB12", "Vitamin B12", "mcg", 1], ["pantothenicAcid", "Pantothenic acid (B5)", "mg", 1], ["choline", "Choline", "mg", 1]]],
     ["Minerals", [["calcium", "Calcium", "mg", 1], ["iron", "Iron", "mg", 1], ["magnesium", "Magnesium", "mg", 1], ["phosphorus", "Phosphorus", "mg", 1], ["potassium", "Potassium", "mg", 1], ["zinc", "Zinc", "mg", 1], ["copper", "Copper", "mg", 1], ["selenium", "Selenium", "mcg", 1]]]
   ];
-  const KEY_NUTRIENTS = [["fiber", "Fiber", "g"], ["satFat", "Sat. fat", "g", "limit"], ["sodium", "Sodium", "mg", "limit"], ["potassium", "Potassium", "mg"], ["calcium", "Calcium", "mg"], ["iron", "Iron", "mg"], ["magnesium", "Magnesium", "mg"], ["vitaminD", "Vitamin D", "mcg"], ["vitaminC", "Vitamin C", "mg"], ["vitaminB12", "Vitamin B12", "mcg"], ["folateDFE", "Folate", "mcg"], ["vitaminK", "Vitamin K", "mcg"], ["zinc", "Zinc", "mg"]];
+  const KEY_NUTRIENTS = [ ["satFat", "Sat. fat", "g", "limit"], ["sodium", "Sodium", "mg", "limit"], ["potassium", "Potassium", "mg"], ["calcium", "Calcium", "mg"], ["iron", "Iron", "mg"], ["magnesium", "Magnesium", "mg"], ["vitaminD", "Vitamin D", "mcg"], ["vitaminC", "Vitamin C", "mg"], ["vitaminB12", "Vitamin B12", "mcg"], ["folateDFE", "Folate", "mcg"], ["vitaminK", "Vitamin K", "mcg"], ["zinc", "Zinc", "mg"]];
   const MEALS = [["breakfast", "Breakfast"], ["lunch", "Lunch"], ["dinner", "Dinner"], ["snacks", "Snacks"]];
   const STATE_LABEL = { raw: "Raw", dry: "Dry", cooked: "Cooked", canned: "Canned", frozen: "Frozen", "as sold": "" };
 
@@ -154,7 +154,7 @@
   for (const type of ["mouseenter", "focusin"]) $("#toast").addEventListener(type, () => clearTimeout(toast.timer));
   for (const type of ["mouseleave", "focusout"]) $("#toast").addEventListener(type, () => { if ($("#toast").classList.contains("visible")) armToast(); });
   document.addEventListener("keydown", event => {
-    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !event.target.closest("input, textarea") && undoSnapshot) { event.preventDefault(); undo(); }
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !event.target.closest("input, textarea") && undoSnapshot) { event.preventDefault(); if (undo()) focusAfterChange(); }
   });
   function snapshot() { return { day: currentDay, entries: dayEntries().map(entry => ({ ...entry })) }; }
 
@@ -190,7 +190,7 @@
     const macro = (key, label) => {
       const total = t[key];
       const prefix = total.value !== null && !total.complete ? "≥" : "";
-      return bar(label, `${prefix}${fmt(total.value || 0, "")} g`, `${int(goals[key])} g`, (total.value || 0) / (goals[key] || 1), `macro-${key}`);
+      return bar(label, `${prefix}${fmt(total.value || 0, "")} g`, goals[key] ? `${int(goals[key])} g` : "", goals[key] ? (total.value || 0) / goals[key] : 0, `macro-${key}`);
     };
     $("#macro-grid").innerHTML = macro("protein", "Protein") + macro("carbs", "Carbs") + macro("fat", "Fat") + macro("fiber", "Fiber");
     $("#key-nutrients").innerHTML = KEY_NUTRIENTS.map(([key, label, unit, limit]) => {
@@ -402,6 +402,8 @@
       $("#amount-error").textContent = !text ? "Enter an amount." : /^-|^[0.,\s]+$/.test(text) || (parsed !== null && parsed * draft.option.grams < 0.1) ? "Enter an amount greater than zero." : parsed !== null ? "That amount is too large." : "Enter a number like 2, 1.5, 1/2 or 1 1/2.";
       $("#amount-error").hidden = false; $("#amount").setAttribute("aria-invalid", "true");
       $("#sheet-submit").disabled = true; $(".preview").classList.add("stale");
+      $("#preview-kcal").textContent = "—";
+      $("#preview-macros").querySelectorAll("b").forEach(b => { b.textContent = "—"; });
       return;
     }
     $("#amount-error").hidden = true; $("#amount").removeAttribute("aria-invalid");
