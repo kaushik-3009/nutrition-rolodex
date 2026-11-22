@@ -30,8 +30,8 @@ def kcal(page):
     return int(page.inner_text("#kcal-eaten").replace(",", ""))
 
 
-def run(browser, viewport, label):
-    context = browser.new_context(viewport=viewport)
+def run(browser, viewport, label, touch=False):
+    context = browser.new_context(viewport=viewport, has_touch=touch, is_mobile=touch)
     page = context.new_page()
     errors = []
     page.on("pageerror", lambda error: errors.append(str(error)))
@@ -57,6 +57,33 @@ def run(browser, viewport, label):
     page.click('[data-meal="breakfast"]')
     page.click("#sheet-submit")
     assert kcal(page) == 105
+    assert page.input_value("#food-search") == "", "search clears after adding"
+    assert "105" in page.inner_text("#toast-text")
+
+    # Typos fall back to the closest spelling and say so.
+    page.fill("#food-search", "brocoli")
+    page.wait_for_selector("#results .result")
+    assert "broccoli" in page.inner_text("#result-count")
+
+    # Stepper moves through nice values without skipping, and switching unit converts the amount.
+    page.fill("#food-search", "white rice")
+    page.wait_for_selector("#results .result")
+    page.locator("#results .result").first.click()
+    page.wait_for_selector("#food-sheet[open]")
+    if touch:
+        assert page.evaluate("document.activeElement.id") != "amount", "no keyboard pop-up on phones"
+    page.click('[data-portion="g"]')
+    assert page.input_value("#amount") == "158"
+    page.fill("#amount", "150")
+    page.click("#amount-up")
+    assert page.input_value("#amount") == "160"
+    page.click("#amount-down"); page.click("#amount-down")
+    assert page.input_value("#amount") == "140"
+    page.fill("#amount", "0")
+    assert page.is_disabled("#sheet-submit") and "greater than zero" in page.inner_text("#amount-error")
+    page.fill("#amount", "1,000")
+    assert "1000" in page.inner_text("#amount-unit") or page.is_enabled("#sheet-submit")
+    page.keyboard.press("Escape")
 
     # Fractions, another portion, and a different meal.
     add(page, "white rice", amount="1/2", meal="lunch")       # ½ cup cooked rice = 79 g
@@ -80,10 +107,13 @@ def run(browser, viewport, label):
     assert page.is_visible("#amount-error")
     page.keyboard.press("Escape")
 
-    # Remove with undo.
+    # Removing two foods in a row, then Undo, restores both.
     before = kcal(page)
     page.locator('.meal[aria-label="Lunch"] .row-remove').click()
+    page.locator('.meal[aria-label="Dinner"] .row-remove').click()
     assert kcal(page) < before
+    if not touch:
+        assert page.evaluate("document.activeElement.tagName") != "BODY", "focus is not lost after removing"
     page.click("#toast-undo")
     assert kcal(page) == before
 
@@ -128,6 +158,6 @@ def run(browser, viewport, label):
 with sync_playwright() as p:
     browser = p.chromium.launch(executable_path=os.environ.get("CHROMIUM_PATH") or None)
     run(browser, {"width": 1280, "height": 900}, "desktop")
-    run(browser, {"width": 390, "height": 844}, "phone")
-    run(browser, {"width": 320, "height": 640}, "small phone")
+    run(browser, {"width": 390, "height": 844}, "phone", touch=True)
+    run(browser, {"width": 320, "height": 640}, "small phone", touch=True)
     browser.close()

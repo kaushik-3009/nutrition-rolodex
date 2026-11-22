@@ -20,10 +20,11 @@
       <a class="brand" href="./" aria-label="Pantry Index home"><span class="brand-mark" aria-hidden="true">PI</span><span class="brand-name">Pantry Index</span></a>
       <div class="day-nav" role="group" aria-label="Choose day">
         <button type="button" class="icon-button" id="prev-day" aria-label="Previous day">‹</button>
-        <button type="button" class="day-label" id="day-label" aria-label="Go to today">Today</button>
+        <button type="button" class="day-label" id="day-label">Today</button>
         <button type="button" class="icon-button" id="next-day" aria-label="Next day">›</button>
       </div>
-      <nav class="top-links" aria-label="Primary"><button type="button" class="link-button" id="open-goals">Goals</button><a href="about.html">About</a></nav>
+      <button type="button" class="kcal-pill" id="kcal-pill" aria-label="Jump to today's totals">0 / 2,000 kcal</button>
+      <nav class="top-links" aria-label="Primary"><button type="button" class="link-button" id="open-goals">Goals</button><a href="about.html" class="about-link">About</a></nav>
     </header>
 
     <main class="layout">
@@ -77,7 +78,8 @@
           <div class="log-actions"><button type="button" class="ghost-button small" id="copy-previous" hidden>Copy previous day</button><button type="button" class="ghost-button small" id="export-day" hidden>Download</button><button type="button" class="ghost-button small danger" id="clear-day" hidden>Clear day</button></div>
         </div>
         <div id="meals"></div>
-        <p class="muted small-print" id="storage-note">Saved in this browser only.</p>
+        <p class="muted small-print" id="storage-note" role="status">Saved in this browser only.</p>
+        <p class="small-print log-footer"><a href="about.html">About Pantry Index &amp; where the numbers come from</a></p>
       </section>
     </main>
 
@@ -85,7 +87,7 @@
       <form method="dialog" class="sheet-inner" id="sheet-form" novalidate>
         <div class="sheet-head">
           <div>
-            <h2 id="sheet-title">Food</h2>
+            <h2 id="sheet-title" tabindex="-1">Food</h2>
             <p id="sheet-detail" class="sheet-detail"></p>
           </div>
           <button type="button" class="icon-button close" id="sheet-close" aria-label="Close">✕</button>
@@ -98,11 +100,11 @@
             <button type="button" class="step" id="amount-up" aria-label="More">+</button>
           </div>
           <p id="amount-error" class="error" role="alert" hidden></p>
-          <div class="portion-chips" id="portion-chips" role="radiogroup" aria-label="Portion"></div>
           <div class="preview" aria-live="polite">
             <div class="preview-kcal"><strong id="preview-kcal">0</strong><span>kcal</span></div>
             <div class="preview-macros" id="preview-macros"></div>
           </div>
+          <div class="portion-chips" id="portion-chips" role="radiogroup" aria-label="Portion"></div>
           <details class="sheet-label">
             <summary>Full nutrition facts for this amount</summary>
             <section class="label-panel">
@@ -125,11 +127,11 @@
       <form method="dialog" class="sheet-inner" id="goals-form">
         <div class="sheet-head"><div><h2 id="goals-title">Daily goals</h2><p class="sheet-detail">Defaults are FDA Daily Values. Set your own targets.</p></div><button type="button" class="icon-button close" data-close aria-label="Close">✕</button></div>
         <div class="sheet-body goals-grid">
-          <label>Calories <span>kcal</span><input name="calories" type="number" min="500" max="10000" step="10" required /></label>
-          <label>Protein <span>g</span><input name="protein" type="number" min="0" max="600" step="1" required /></label>
-          <label>Carbs <span>g</span><input name="carbs" type="number" min="0" max="1200" step="1" required /></label>
-          <label>Fat <span>g</span><input name="fat" type="number" min="0" max="500" step="1" required /></label>
-          <label>Fiber <span>g</span><input name="fiber" type="number" min="0" max="200" step="1" required /></label>
+          <label>Calories <span>kcal</span><input name="calories" type="number" inputmode="numeric" min="500" max="10000" step="1" required /></label>
+          <label>Protein <span>g</span><input name="protein" type="number" inputmode="numeric" min="0" max="600" step="1" required /></label>
+          <label>Carbs <span>g</span><input name="carbs" type="number" inputmode="numeric" min="0" max="1200" step="1" required /></label>
+          <label>Fat <span>g</span><input name="fat" type="number" inputmode="numeric" min="0" max="500" step="1" required /></label>
+          <label>Fiber <span>g</span><input name="fiber" type="number" inputmode="numeric" min="0" max="200" step="1" required /></label>
         </div>
         <div class="sheet-actions"><button type="button" class="ghost-button" id="goals-reset">Use FDA defaults</button><button type="submit" class="primary-button" value="save">Save goals</button></div>
       </form>

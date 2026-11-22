@@ -19,7 +19,7 @@
     ["Vitamins", [["vitaminA", "Vitamin A (RAE)", "mcg", 1], ["vitaminC", "Vitamin C", "mg", 1], ["vitaminD", "Vitamin D", "mcg", 1], ["vitaminE", "Vitamin E", "mg", 1], ["vitaminK", "Vitamin K", "mcg", 1], ["thiamin", "Thiamin (B1)", "mg", 1], ["riboflavin", "Riboflavin (B2)", "mg", 1], ["niacin", "Niacin (B3)", "mg", 0], ["vitaminB6", "Vitamin B6", "mg", 1], ["folateDFE", "Folate (DFE)", "mcg", 1], ["folate", "Folate (total)", "mcg", 0, 1], ["vitaminB12", "Vitamin B12", "mcg", 1], ["pantothenicAcid", "Pantothenic acid (B5)", "mg", 1], ["choline", "Choline", "mg", 1]]],
     ["Minerals", [["calcium", "Calcium", "mg", 1], ["iron", "Iron", "mg", 1], ["magnesium", "Magnesium", "mg", 1], ["phosphorus", "Phosphorus", "mg", 1], ["potassium", "Potassium", "mg", 1], ["zinc", "Zinc", "mg", 1], ["copper", "Copper", "mg", 1], ["selenium", "Selenium", "mcg", 1]]]
   ];
-  const KEY_NUTRIENTS = [["fiber", "Fiber", "g"], ["sugars", "Sugars", "g", "limit"], ["satFat", "Sat. fat", "g", "limit"], ["sodium", "Sodium", "mg", "limit"], ["potassium", "Potassium", "mg"], ["calcium", "Calcium", "mg"], ["iron", "Iron", "mg"], ["magnesium", "Magnesium", "mg"], ["vitaminD", "Vitamin D", "mcg"], ["vitaminC", "Vitamin C", "mg"], ["vitaminB12", "Vitamin B12", "mcg"], ["folateDFE", "Folate", "mcg"], ["vitaminK", "Vitamin K", "mcg"], ["zinc", "Zinc", "mg"]];
+  const KEY_NUTRIENTS = [["fiber", "Fiber", "g"], ["satFat", "Sat. fat", "g", "limit"], ["sodium", "Sodium", "mg", "limit"], ["potassium", "Potassium", "mg"], ["calcium", "Calcium", "mg"], ["iron", "Iron", "mg"], ["magnesium", "Magnesium", "mg"], ["vitaminD", "Vitamin D", "mcg"], ["vitaminC", "Vitamin C", "mg"], ["vitaminB12", "Vitamin B12", "mcg"], ["folateDFE", "Folate", "mcg"], ["vitaminK", "Vitamin K", "mcg"], ["zinc", "Zinc", "mg"]];
   const MEALS = [["breakfast", "Breakfast"], ["lunch", "Lunch"], ["dinner", "Dinner"], ["snacks", "Snacks"]];
   const STATE_LABEL = { raw: "Raw", dry: "Dry", cooked: "Cooked", canned: "Canned", frozen: "Frozen", "as sold": "" };
 
@@ -54,6 +54,7 @@
   const KEY = "pantry-index-v2", LEGACY_KEY = "pantry-index-day-v1";
   let store = { version: 2, days: {}, goals: { ...FDA }, recent: [] };
   let storageOk = true;
+  let storageNotice = "";
   function validEntry(entry) {
     return entry && byId.has(entry.foodId) && Number.isFinite(entry.grams) && entry.grams > 0 && entry.grams <= 100000;
   }
@@ -77,18 +78,28 @@
   function load() {
     try {
       const saved = localStorage.getItem(KEY);
-      if (saved) { store = normalizeStore(JSON.parse(saved)); return; }
+      if (saved) {
+        try { store = normalizeStore(JSON.parse(saved)); }
+        catch {
+          // Keep the unreadable copy instead of silently overwriting it.
+          localStorage.setItem(`${KEY}-unreadable-${Date.now()}`, saved);
+          storageNotice = "Your saved log couldn't be read, so a backup copy was kept and a new log started.";
+        }
+        return;
+      }
       // One-time move of the old single "day plan" into today's log.
       const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY) || "null");
       if (legacy && Array.isArray(legacy.entries) && legacy.entries.length) {
-        store.days[dayKey(new Date())] = legacy.entries.filter(validEntry).map(entry => ({ id: uid(), foodId: entry.foodId, grams: entry.grams, measureId: "g", amount: entry.grams, meal: "snacks" }));
+        const kept = legacy.entries.filter(validEntry);
+        store.days[dayKey(new Date())] = kept.map(entry => ({ id: uid(), foodId: entry.foodId, grams: entry.grams, measureId: "g", amount: entry.grams, meal: "snacks" }));
+        storageNotice = `Moved ${kept.length} ${kept.length === 1 ? "food" : "foods"} from your old day plan into today’s Snacks${kept.length < legacy.entries.length ? ` (${legacy.entries.length - kept.length} couldn’t be matched)` : ""}.`;
         save();
       }
     } catch { storageOk = false; }
   }
   function save() {
     try { localStorage.setItem(KEY, JSON.stringify(store)); storageOk = true; } catch { storageOk = false; }
-    $("#storage-note").textContent = storageOk ? "Saved in this browser only." : "This browser is not saving. Download your day to keep it.";
+    $("#storage-note").textContent = !storageOk ? "This browser is not saving. Download your day to keep it." : storageNotice || "Saved in this browser only.";
   }
 
   // ---------- state ----------
@@ -97,6 +108,7 @@
   let resultLimit = 12;
   let lastResults = [];
   let undoSnapshot = null;
+  let followToday = true;
   const index = S.createIndex(catalog);
   const entriesFor = key => store.days[key] || (store.days[key] = []);
   const dayEntries = () => store.days[currentDay] || [];
@@ -118,19 +130,31 @@
   }
 
   // ---------- toast ----------
+  function hideToast() { $("#toast").classList.remove("visible"); undoSnapshot = null; }
+  function armToast() { clearTimeout(toast.timer); toast.timer = setTimeout(hideToast, undoSnapshot ? 8000 : 3200); }
   function toast(message, undo) {
     $("#toast-text").textContent = message;
-    $("#toast-undo").hidden = !undo;
-    undoSnapshot = undo || null;
+    // Several removals in a row undo together: keep the oldest snapshot.
+    if (undo) undoSnapshot = undoSnapshot && undoSnapshot.day === undo.day ? undoSnapshot : undo;
+    else undoSnapshot = null;
+    $("#toast-undo").hidden = !undoSnapshot;
     $("#toast").classList.add("visible");
-    clearTimeout(toast.timer);
-    toast.timer = setTimeout(() => { $("#toast").classList.remove("visible"); undoSnapshot = null; }, undo ? 6000 : 2600);
+    armToast();
   }
-  $("#toast-undo").addEventListener("click", () => {
-    if (!undoSnapshot) return;
+  function undo() {
+    if (!undoSnapshot) return false;
     store.days[undoSnapshot.day] = undoSnapshot.entries;
-    undoSnapshot = null; save(); renderDay();
-    $("#toast").classList.remove("visible");
+    currentDay = undoSnapshot.day;
+    hideToast(); save(); renderDay();
+    toast("Restored");
+    return true;
+  }
+  $("#toast-undo").addEventListener("click", () => { if (undo()) focusAfterChange(); });
+  // Hovering or focusing the toast keeps it open.
+  for (const type of ["mouseenter", "focusin"]) $("#toast").addEventListener(type, () => clearTimeout(toast.timer));
+  for (const type of ["mouseleave", "focusout"]) $("#toast").addEventListener(type, () => { if ($("#toast").classList.contains("visible")) armToast(); });
+  document.addEventListener("keydown", event => {
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "z" && !event.target.closest("input, textarea") && undoSnapshot) { event.preventDefault(); undo(); }
   });
   function snapshot() { return { day: currentDay, entries: dayEntries().map(entry => ({ ...entry })) }; }
 
@@ -140,9 +164,9 @@
       const total = result.totals[key];
       const known = total.value !== null;
       const prefix = known && !total.complete ? "≥ " : "";
-      const dv = hasDV && known && total.complete && DV[key] ? `${Math.round(total.value / DV[key] * 100)}%` : "";
-      const coverage = known && !total.complete ? `<small>${total.known} of ${total.total} foods report this</small>` : "";
-      return `<div class="${indent ? "indent" : ""}"><dt>${indent ? esc(label) : `<b>${esc(label)}</b>`} ${prefix}${fmt(total.value, unit)}${coverage}</dt><dd>${dv}</dd></div>`;
+      const dv = hasDV && known && DV[key] ? `${prefix}${Math.round(total.value / DV[key] * 100)}%` : "";
+      const coverage = known && !total.complete ? ` title="${total.known} of ${total.total} foods report ${esc(label.toLowerCase())}; the total is a known minimum"` : "";
+      return `<div class="${indent ? "indent" : ""}"${coverage}><dt>${indent ? esc(label) : `<b>${esc(label)}</b>`} ${prefix}${fmt(total.value, unit)}</dt><dd>${dv}</dd></div>`;
     }).join("")).join("");
   }
 
@@ -171,11 +195,13 @@
     $("#macro-grid").innerHTML = macro("protein", "Protein") + macro("carbs", "Carbs") + macro("fat", "Fat") + macro("fiber", "Fiber");
     $("#key-nutrients").innerHTML = KEY_NUTRIENTS.map(([key, label, unit, limit]) => {
       const total = t[key];
-      const reference = key === "fiber" ? goals.fiber : key === "sugars" ? 50 : DV[key];
+      const reference = key === "fiber" ? goals.fiber : DV[key];
       const prefix = total.value !== null && !total.complete ? "≥" : "";
       const ratio = (total.value || 0) / reference;
-      return bar(label, `${prefix}${fmt(total.value || 0, unit)}`, `${Math.round(ratio * 100)}%`, ratio, limit ? "limit" + (ratio > 1 ? " over" : "") : "");
-    }).join("");
+      return bar(label, `${prefix}${fmt(total.value || 0, unit)}`, `${prefix}${Math.round(ratio * 100)}%`, ratio, limit ? "limit" + (ratio > 1 ? " over" : "") : "");
+    }).join("") + `<p class="key-note">% of the FDA Daily Value. “≥” means some foods don’t report it, so the total is a minimum.${t.sugars.value !== null ? ` Total sugars: ${t.sugars.complete ? "" : "≥"}${fmt(t.sugars.value, "g")}.` : ""}</p>`;
+    $("#summary").classList.toggle("empty", !entries.length);
+    $("#kcal-pill").textContent = `${int(kcal)} / ${int(goals.calories)} kcal`;
     $("#day-serving").textContent = `${result.itemCount} ${result.itemCount === 1 ? "food" : "foods"} · ${grams(result.totalGrams)}`;
     $("#day-calories").textContent = int(kcal);
     $("#day-nutrients").innerHTML = labelRows(result);
@@ -191,7 +217,7 @@
       const rows = list.map(entry => {
         const food = byId.get(entry.foodId), name = names(food);
         const p = value(food, "protein", entry.grams), c = value(food, "carbs", entry.grams), f = value(food, "fat", entry.grams);
-        return `<li><button type="button" class="log-row" data-entry="${esc(entry.id)}"><span class="log-name"><b>${esc(name.title)}</b>${name.detail ? `<span>${esc(name.detail)}</span>` : ""}<small>${esc(entryText(entry))}</small></span><span class="log-nums"><b>${fmt(value(food, "calories", entry.grams), "")}</b><small>P ${fmt(p, "")} · C ${fmt(c, "")} · F ${fmt(f, "")}</small></span></button><button type="button" class="row-remove" data-remove="${esc(entry.id)}" aria-label="Remove ${esc(name.title)}">✕</button></li>`;
+        return `<li><button type="button" class="log-row" data-entry="${esc(entry.id)}"><span class="log-name"><b>${esc(name.title)}</b>${name.detail ? `<span>${esc(name.detail)}</span>` : ""}<small>${esc(entryText(entry))}</small></span><span class="log-nums"><b>${fmt(value(food, "calories", entry.grams), "")}</b><small title="Protein, carbs, fat">P ${Math.round(p || 0)}g · C ${Math.round(c || 0)}g · F ${Math.round(f || 0)}g</small></span></button><button type="button" class="row-remove" data-remove="${esc(entry.id)}" aria-label="Remove ${esc(name.title)}">✕</button></li>`;
       }).join("");
       return `<section class="meal" aria-label="${title}"><div class="meal-head"><h3>${title}</h3><span>${list.length ? `${int(kcal)} kcal` : ""}</span><button type="button" class="link-button" data-add-meal="${meal}">+ Add</button></div>${rows ? `<ul class="log-list">${rows}</ul>` : ""}</section>`;
     }).join("");
@@ -205,6 +231,8 @@
     $("#day-label").textContent = isToday ? "Today" : currentDay === shiftDay(dayKey(new Date()), -1) ? "Yesterday" : parseDay(currentDay).toLocaleDateString(undefined, { weekday: "short", month: "short", day: "numeric" });
     $("#next-day").disabled = isToday;
     $("#day-label").disabled = isToday;
+    $("#day-label").title = isToday ? "" : "Back to today";
+    $("#log-title").textContent = isToday ? "Food log" : `Food log · ${$("#day-label").textContent}`;
     $("#summary-title").textContent = isToday ? "Today" : $("#day-label").textContent;
   }
   function renderDay() { renderLog(); renderSummary(); }
@@ -230,8 +258,8 @@
       $("#result-count").textContent = "";
       const recent = store.recent.filter(item => byId.has(item.foodId)).slice(0, 8);
       const staples = ["generic-bananas-raw", "generic-egg-whole-raw-fresh", "fdc-168878", "generic-rolled-oats", "fdc-171477", "generic-milk-reduced-fat-2", "fdc-172688", "generic-apples-raw-with-skin", "generic-yogurt-greek-plain-whole-milk", "fdc-172470"].filter(id => byId.has(id));
-      quick.innerHTML = (recent.length ? `<p class="quick-title">Recent</p><div class="chip-row">${recent.map(item => `<button type="button" class="chip" data-food="${esc(item.foodId)}" data-measure="${esc(item.measureId)}" data-amount="${item.amount}">${esc(names(byId.get(item.foodId)).title)} <small>${esc(M.describe(measureFor(byId.get(item.foodId), item.measureId), item.amount))}</small></button>`).join("")}</div>` : "")
-        + `<p class="quick-title">${recent.length ? "Everyday foods" : "Start with an everyday food"}</p><div class="chip-row">${staples.map(id => `<button type="button" class="chip" data-food="${esc(id)}">${esc(names(byId.get(id)).title)}</button>`).join("")}</div>`;
+      quick.innerHTML = (recent.length ? `<p class="quick-title">Recent</p><div class="chip-row">${recent.map(item => `<button type="button" class="chip" data-food="${esc(item.foodId)}" data-measure="${esc(item.measureId)}" data-amount="${item.amount}" title="${esc(byId.get(item.foodId).name)}">${esc(names(byId.get(item.foodId)).title)} <small>${esc(M.describe(measureFor(byId.get(item.foodId), item.measureId), item.amount))}</small></button>`).join("")}</div>` : "")
+        + `<p class="quick-title">${recent.length ? "Everyday foods" : "Start with an everyday food"}</p><div class="chip-row">${staples.map(id => `<button type="button" class="chip" data-food="${esc(id)}" title="${esc(byId.get(id).name)}">${esc(names(byId.get(id)).title)}</button>`).join("")}</div>`;
       quick.hidden = false;
       return;
     }
@@ -239,7 +267,12 @@
     lastResults = index.search(query, { state: stateFilter });
     const shown = lastResults.slice(0, resultLimit);
     $("#results").innerHTML = shown.map(({ food }) => resultRow(food)).join("");
-    $("#result-count").textContent = lastResults.length ? `${lastResults.length.toLocaleString()} ${lastResults.length === 1 ? "match" : "matches"}` : `No foods match “${query}”${stateFilter !== "all" ? ` in ${stateFilter}` : ""}. Try a shorter or different word.`;
+    const hiddenByFilter = !lastResults.length && stateFilter !== "all" ? index.search(query).length : 0;
+    $("#result-count").innerHTML = lastResults.length
+      ? `${lastResults.length.toLocaleString()} ${lastResults.length === 1 ? "match" : "matches"}${lastResults.corrected ? ` for <b>${esc(lastResults.corrected)}</b> <span class="muted">(no matches for “${esc(query)}”)</span>` : ""}`
+      : hiddenByFilter
+        ? `No ${esc(stateFilter)} foods match “${esc(query)}”. <button type="button" class="link-button" data-clear-filter>Show ${hiddenByFilter.toLocaleString()} in any preparation</button>`
+        : `No foods match “${esc(query)}”. Try a shorter or different word, like “chicken” or “rice”.`;
     $("#more-results").hidden = lastResults.length <= resultLimit;
   }
   $("#food-search").addEventListener("input", () => { resultLimit = 12; renderResults(); });
@@ -249,7 +282,7 @@
   });
   $("#food-search").addEventListener("keydown", event => {
     if (event.key === "ArrowDown") { const first = $("#results .result"); if (first) { event.preventDefault(); first.focus(); } }
-    if (event.key === "Escape") { $("#food-search").value = ""; renderResults(); }
+    if (event.key === "Escape") { $("#food-search").value = ""; pendingMeal = null; renderResults(); }
   });
   $("#results").addEventListener("keydown", event => {
     const buttons = [...document.querySelectorAll("#results .result")];
@@ -258,11 +291,13 @@
     if (event.key === "ArrowUp") { event.preventDefault(); (i > 0 ? buttons[i - 1] : $("#food-search")).focus(); }
   });
   $("#more-results").addEventListener("click", () => { resultLimit += 24; renderResults(); });
-  document.querySelectorAll("[data-state]").forEach(button => button.addEventListener("click", () => {
-    stateFilter = button.dataset.state;
-    document.querySelectorAll("[data-state]").forEach(other => other.setAttribute("aria-pressed", String(other === button)));
+  function setStateFilter(state) {
+    stateFilter = state;
+    document.querySelectorAll("[data-state]").forEach(other => other.setAttribute("aria-pressed", String(other.dataset.state === state)));
     resultLimit = 12; renderResults();
-  }));
+  }
+  $("#result-count").addEventListener("click", event => { if (event.target.closest("[data-clear-filter]")) setStateFilter("all"); });
+  document.querySelectorAll("[data-state]").forEach(button => button.addEventListener("click", () => setStateFilter(button.dataset.state)));
   document.addEventListener("click", event => {
     const pick = event.target.closest("[data-food]");
     if (!pick) return;
@@ -272,6 +307,17 @@
   document.addEventListener("keydown", event => {
     if (event.key === "/" && !event.target.closest("input, textarea, select, dialog[open]")) { event.preventDefault(); focusSearch(); }
   });
+  const coarse = () => matchMedia("(pointer: coarse)").matches;
+  function clearSearch() { $("#food-search").value = ""; resultLimit = 12; renderResults(); }
+  // After the log re-renders, put focus somewhere sensible instead of <body>.
+  function focusAfterChange(entryId, fallbackIndex = 0) {
+    if (coarse()) return;
+    const target = (entryId && document.querySelector(`[data-entry="${CSS.escape(entryId)}"]`))
+      || document.querySelectorAll("#meals .log-row")[fallbackIndex]
+      || document.querySelectorAll("#meals .log-row")[fallbackIndex - 1]
+      || $("#food-search");
+    target.focus({ preventScroll: false });
+  }
   function focusSearch() { $("#add").scrollIntoView({ block: "start", behavior: "smooth" }); $("#food-search").focus({ preventScroll: true }); $("#food-search").select(); }
 
   // ---------- food sheet ----------
@@ -287,17 +333,21 @@
     $("#sheet-title").textContent = name.title;
     $("#sheet-detail").textContent = detailLine(food);
     $("#meal-picker").innerHTML = MEALS.map(([id, label]) => `<button type="button" data-meal="${id}" aria-pressed="${id === draft.meal}">${label}</button>`).join("");
-    $("#portion-chips").innerHTML = M.optionsFor(food).map(option => `<button type="button" role="radio" data-portion="${esc(option.id)}" title="${esc(option.source)}"><span>${esc(option.unit === "g" ? "grams" : option.unit === "oz" ? "ounces" : option.label)}</span>${option.kind === "weight" ? "" : `<small>${grams(option.grams)}</small>`}</button>`).join("");
+    $("#portion-chips").innerHTML = M.optionsFor(food).map(option => `<button type="button" role="radio" tabindex="-1" data-portion="${esc(option.id)}" title="${esc(option.source)}"><span>${esc(option.unit === "g" ? "grams" : option.unit === "oz" ? "ounces" : option.label)}</span>${option.kind === "weight" ? "" : `<small>${grams(option.grams)}</small>`}</button>`).join("");
     const source = food.backfill
       ? `Source: USDA ${esc(food.sourceDataset.replace("FoodData Central ", ""))}, FDC ${food.fdcId}. Missing values (${food.backfill.keys.length} nutrients) filled from SR Legacy FDC ${food.backfill.fdcId}.`
       : `Source: USDA ${esc(food.sourceDataset.replace("FoodData Central ", ""))}, FDC ${food.fdcId}.`;
     $("#sheet-source").innerHTML = `${source} <a href="https://fdc.nal.usda.gov/food-details/${food.fdcId}/nutrients" target="_blank" rel="noopener noreferrer">View record ↗</a> · <span title="${esc(food.name)}">${esc(food.name)}</span>`;
-    $("#sheet-submit").textContent = entryId ? "Save" : `Add to ${MEALS.find(([id]) => id === draft.meal)[1]}`;
     $("#sheet-remove").hidden = !entryId;
+    $("#amount-error").hidden = true; $("#amount").removeAttribute("aria-invalid");
     $("#amount").value = M.formatAmount(draft.amount);
     renderSheet();
     if (!sheet.open) sheet.showModal();
-    requestAnimationFrame(() => { $("#amount").focus(); $("#amount").select(); });
+    // On phones, don't pop the keyboard over the portions; tap the amount to type.
+    requestAnimationFrame(() => {
+      if (coarse()) $("#sheet-title").focus({ preventScroll: true });
+      else { $("#amount").focus(); $("#amount").select(); }
+    });
   }
   function renderSheet({ keepInput = true } = {}) {
     const { food, option, amount } = draft;
@@ -305,9 +355,16 @@
     if (!keepInput) $("#amount").value = option.unit === "g" ? String(Number(amount.toFixed(1))) : M.formatAmount(amount);
     fitAmount();
     $("#amount-unit").textContent = M.unitText(option, amount) + (option.unit === "g" ? "" : ` · ${grams(g)}`);
-    document.querySelectorAll("[data-portion]").forEach(button => button.setAttribute("aria-checked", String(button.dataset.portion === option.id)));
+    document.querySelectorAll("[data-portion]").forEach(button => {
+      const checked = button.dataset.portion === option.id;
+      button.setAttribute("aria-checked", String(checked));
+      button.tabIndex = checked ? 0 : -1;
+    });
+    $("#sheet-submit").disabled = false;
+    $(".preview").classList.remove("stale");
     document.querySelectorAll("[data-meal]").forEach(button => button.setAttribute("aria-pressed", String(button.dataset.meal === draft.meal)));
-    if (!draft.entryId) $("#sheet-submit").textContent = `Add to ${MEALS.find(([id]) => id === draft.meal)[1]}`;
+    const pastDay = currentDay !== dayKey(new Date()) ? ` · ${$("#day-label").textContent}` : "";
+    $("#sheet-submit").textContent = draft.entryId ? "Save" : `Add to ${MEALS.find(([id]) => id === draft.meal)[1]}${pastDay}`;
     const result = N.aggregateMenu([food], [{ foodId: food.id, grams: g }]);
     $("#preview-kcal").textContent = fmt(result.totals.calories.value, "");
     $("#preview-macros").innerHTML = [["protein", "Protein"], ["carbs", "Carbs"], ["fat", "Fat"], ["fiber", "Fiber"]].map(([key, label]) => `<span><b>${fmt(result.totals[key].value, "g")}</b>${label}</span>`).join("");
@@ -321,19 +378,30 @@
     $("#amount-error").hidden = true; $("#amount").removeAttribute("aria-invalid");
     renderSheet({ keepInput: false });
   }
+  // Step to the next "nice" value in the direction pressed, never skipping one.
+  function stepSize(option, amount, direction) {
+    const at = direction > 0 ? amount : amount - 1e-9;
+    if (option.unit === "g") return at < 20 ? 5 : at < 200 ? 10 : 25;
+    if (option.unit === "cup") return 0.25;
+    return at < 2 ? 0.5 : 1;
+  }
   function step(direction) {
     const { option, amount } = draft;
-    const size = option.unit === "g" ? (amount >= 100 ? 25 : 10) : option.unit === "oz" ? 1 : option.unit === "cup" ? 0.25 : amount < 1 || (amount === 1 && direction < 0) ? 0.25 : 1;
-    const next = Math.round((amount + direction * size) / size) * size;
-    setAmount(Math.max(option.unit === "g" ? 1 : 0.25, next));
+    const size = stepSize(option, amount, direction);
+    const units = amount / size;
+    const next = (direction > 0 ? Math.floor(units + 1e-9) + 1 : Math.ceil(units - 1e-9) - 1) * size;
+    const min = option.unit === "g" ? 5 : option.unit === "cup" ? 0.25 : 0.5;
+    setAmount(Math.max(Math.min(min, amount), next));
   }
   $("#amount-up").addEventListener("click", () => step(1));
   $("#amount-down").addEventListener("click", () => step(-1));
   $("#amount").addEventListener("input", () => {
     const parsed = M.parseAmount($("#amount").value);
-    if (parsed === null || parsed * draft.option.grams > 20000) {
-      $("#amount-error").textContent = parsed === null ? "Enter an amount like 2, 1.5, 1/2 or 1 1/2." : "That amount is too large.";
+    if (parsed === null || parsed * draft.option.grams > 20000 || parsed * draft.option.grams < 0.1) {
+      const text = $("#amount").value.trim();
+      $("#amount-error").textContent = !text ? "Enter an amount." : /^-|^[0.,\s]+$/.test(text) || (parsed !== null && parsed * draft.option.grams < 0.1) ? "Enter an amount greater than zero." : parsed !== null ? "That amount is too large." : "Enter a number like 2, 1.5, 1/2 or 1 1/2.";
       $("#amount-error").hidden = false; $("#amount").setAttribute("aria-invalid", "true");
+      $("#sheet-submit").disabled = true; $(".preview").classList.add("stale");
       return;
     }
     $("#amount-error").hidden = true; $("#amount").removeAttribute("aria-invalid");
@@ -348,11 +416,30 @@
     if (!button) return;
     const option = M.optionsFor(draft.food).find(item => item.id === button.dataset.portion);
     if (!option || option.id === draft.option.id) return;
+    selectPortion(option);
+  });
+  // Switching units keeps roughly the same amount of food.
+  function selectPortion(option) {
+    const valid = $("#amount").getAttribute("aria-invalid") !== "true";
     const previousGrams = draft.option.grams * draft.amount;
     draft.option = option;
-    // Weight units keep the same grams; picking a portion starts at one of it.
-    draft.amount = option.kind === "weight" ? Math.max(option.unit === "g" ? 1 : 0.1, Number((previousGrams / option.grams).toFixed(option.unit === "g" ? 0 : 1))) : 1;
+    const exact = previousGrams / option.grams;
+    if (!valid) draft.amount = option.kind === "weight" ? (option.unit === "g" ? 100 : 1) : 1;
+    else if (option.unit === "g") draft.amount = Math.max(1, Math.round(exact));
+    else if (option.unit === "oz") draft.amount = Math.max(0.1, Number(exact.toFixed(1)));
+    else { const quarter = Math.round(exact * 4) / 4; draft.amount = quarter >= 0.25 && quarter <= 50 ? quarter : 1; }
+    $("#amount-error").hidden = true; $("#amount").removeAttribute("aria-invalid");
     renderSheet({ keepInput: false });
+  }
+  $("#portion-chips").addEventListener("keydown", event => {
+    const keys = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+    if (!(event.key in keys)) return;
+    event.preventDefault();
+    const buttons = [...document.querySelectorAll("[data-portion]")];
+    const i = buttons.findIndex(button => button.dataset.portion === draft.option.id);
+    const next = buttons[(i + keys[event.key] + buttons.length) % buttons.length];
+    selectPortion(M.optionsFor(draft.food).find(item => item.id === next.dataset.portion));
+    next.focus();
   });
   $("#meal-picker").addEventListener("click", event => {
     const button = event.target.closest("[data-meal]");
@@ -370,18 +457,19 @@
     if (!(g > 0 && g <= 20000)) return;
     const record = { foodId: food.id, grams: g, measureId: option.id, amount, meal };
     const list = entriesFor(currentDay);
-    if (entryId) {
-      const entry = list.find(item => item.id === entryId);
-      if (entry) Object.assign(entry, record);
-      toast(`Updated ${names(food).title}`);
-    } else {
-      list.push({ id: uid(), ...record });
-      toast(`Added ${names(food).title} · ${fmt(value(food, "calories", g), "")} kcal`);
-    }
+    const existing = entryId && list.find(item => item.id === entryId);
+    let savedId = entryId;
+    if (existing) Object.assign(existing, record);
+    else { savedId = uid(); list.push({ id: savedId, ...record }); }
     store.recent = [{ foodId: food.id, measureId: option.id, amount }, ...store.recent.filter(item => item.foodId !== food.id)].slice(0, 12);
     save(); sheet.close(); renderDay();
-    if (!entryId) { $("#food-search").select(); if (!matchMedia("(pointer: coarse)").matches) $("#food-search").focus({ preventScroll: true }); }
-    if (!$("#food-search").value) renderResults();
+    const dayKcal = int(totals(dayEntries()).totals.calories.value || 0);
+    if (existing) { toast(`Updated ${names(food).title} · day ${dayKcal} kcal`); focusAfterChange(savedId); }
+    else {
+      toast(`${entryId ? "Saved again (it was removed elsewhere)" : `Added ${names(food).title}`} · ${fmt(value(food, "calories", g), "")} kcal · day ${dayKcal} kcal`);
+      clearSearch();
+      if (!coarse()) $("#food-search").focus({ preventScroll: true });
+    }
   });
   $("#sheet-remove").addEventListener("click", () => {
     if (!draft?.entryId) return;
@@ -392,10 +480,13 @@
   let pendingMeal = null;
   function removeEntry(id) {
     const before = snapshot();
+    const rows = [...document.querySelectorAll("#meals .log-row")];
+    const position = Math.max(0, rows.findIndex(row => row.dataset.entry === id));
     const entry = dayEntries().find(item => item.id === id);
     store.days[currentDay] = dayEntries().filter(item => item.id !== id);
     save(); renderDay();
     if (entry) toast(`Removed ${names(byId.get(entry.foodId)).title}`, before);
+    focusAfterChange(null, position);
   }
   $("#meals").addEventListener("click", event => {
     const row = event.target.closest("[data-entry]");
@@ -411,12 +502,14 @@
     const before = snapshot();
     store.days[currentDay] = []; save(); renderDay();
     toast("Cleared the day", before);
+    focusAfterChange();
   });
   $("#copy-previous").addEventListener("click", () => {
     const from = $("#copy-previous").dataset.from;
     if (!from || !store.days[from]) return;
     store.days[currentDay] = store.days[from].map(entry => ({ ...entry, id: uid() }));
     save(); renderDay(); toast(`Copied ${store.days[currentDay].length} foods`, { day: currentDay, entries: [] });
+    focusAfterChange();
   });
   $("#export-day").addEventListener("click", () => {
     const entries = dayEntries();
@@ -426,14 +519,22 @@
     const link = document.createElement("a"); link.href = url; link.download = `pantry-index-${currentDay}.json`; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
-  $("#prev-day").addEventListener("click", () => { currentDay = shiftDay(currentDay, -1); renderDay(); });
-  $("#next-day").addEventListener("click", () => { const today = dayKey(new Date()); if (currentDay < today) { currentDay = shiftDay(currentDay, 1); renderDay(); } });
-  $("#day-label").addEventListener("click", () => { currentDay = dayKey(new Date()); renderDay(); });
+  function goToDay(key) {
+    currentDay = key; followToday = key === dayKey(new Date());
+    clearSearch(); renderDay();
+  }
+  $("#prev-day").addEventListener("click", () => goToDay(shiftDay(currentDay, -1)));
+  $("#next-day").addEventListener("click", () => { if (currentDay < dayKey(new Date())) goToDay(shiftDay(currentDay, 1)); });
+  $("#day-label").addEventListener("click", () => goToDay(dayKey(new Date())));
+  // A tab left open past midnight moves on to the new day.
+  function checkDate() { if (followToday && currentDay !== dayKey(new Date()) && !sheet.open) goToDay(dayKey(new Date())); }
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) checkDate(); });
+  setInterval(checkDate, 60000);
 
   // ---------- goals ----------
   const goalsDialog = $("#goals-dialog");
   function fillGoals(values) { for (const [key, val] of Object.entries(values)) goalsDialog.querySelector(`[name=${key}]`).value = Math.round(val); }
-  $("#open-goals").addEventListener("click", () => { fillGoals(store.goals); goalsDialog.showModal(); });
+  $("#open-goals").addEventListener("click", () => { fillGoals(store.goals); goalsDialog.showModal(); goalsDialog.querySelector("[name=calories]").focus(); });
   $("#goals-reset").addEventListener("click", () => fillGoals(FDA));
   goalsDialog.querySelector("[data-close]").addEventListener("click", () => goalsDialog.close());
   goalsDialog.addEventListener("click", event => { if (event.target === goalsDialog) goalsDialog.close(); });
@@ -443,6 +544,8 @@
     for (const key of Object.keys(FDA)) store.goals[key] = Number(goalsDialog.querySelector(`[name=${key}]`).value);
     save(); goalsDialog.close(); renderSummary(); toast("Goals saved");
   });
+
+  $("#kcal-pill").addEventListener("click", () => $("#summary").scrollIntoView({ behavior: "smooth", block: "start" }));
 
   // ---------- cross-tab sync ----------
   window.addEventListener("storage", event => {

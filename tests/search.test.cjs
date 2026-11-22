@@ -11,7 +11,8 @@ const top = (query, n = 3) => index.search(query).slice(0, n).map(result => resu
 test('everyday foods rank first', () => {
   const cases = {
     banana: /^Bananas, raw/, eggs: /^Egg, whole/, 'white rice': /^Rice, white/, 'chicken breast': /^Chicken, .*breast/,
-    milk: /^Milk, whole/, 'peanut butter': /^Peanut butter/, 'olive oil': /olive/i, lentils: /^Lentils/, oats: /^Oats/,
+    milk: /^Milk, whole/, 'peanut butter': /^Peanut butter/, 'olive oil': /olive/i, lentils: /^Lentils/, oats: /oats/i, pizza: /^Pizza, cheese/, steak: /steak/, bacon: /bacon/i, almonds: /^Nuts, almonds/, water: /^Water/, peas: /^Peas/,
+    'chicken thigh': /thigh, meat only, cooked/, spaghetti: /^Pasta, cooked/, mayo: /mayonnaise, regular/, toast: /toasted/, 'hot dog': /^Frankfurter/,
     salmon: /salmon/i, coffee: /coffee, brewed/i, broccoli: /^Broccoli, raw/, 'ground beef': /^Beef, ground/
   };
   for (const [query, pattern] of Object.entries(cases)) assert.match(top(query, 1)[0], pattern, query);
@@ -32,6 +33,20 @@ test('plurals and synonyms', () => {
 });
 
 test('display names drop source noise', () => {
-  assert.deepEqual(S.displayName({ name: 'Chicken, broilers or fryers, breast, meat only, cooked, roasted' }), { title: 'Chicken', detail: 'breast, meat only, cooked, roasted' });
-  assert.deepEqual(S.displayName({ name: 'Nuts, almonds' }), { title: 'Almonds', detail: 'nuts' });
+  assert.deepEqual(S.displayName({ name: 'Chicken, broilers or fryers, breast, meat only, cooked, roasted' }), { title: 'Chicken, breast', detail: 'meat only, cooked, roasted' });
+  assert.deepEqual(S.displayName({ name: 'Nuts, almonds' }), { title: 'Almonds', detail: '' });
+  assert.equal(S.displayName({ name: "McDONALD'S, Hamburger" }).title, "Mcdonald's");
+});
+
+test('typos fall back to the closest spelling', () => {
+  for (const [typo, pattern] of [['bananna', /^Bananas/], ['brocoli', /^Broccoli/], ['chicken breat', /breast/], ['avacado', /^Avocados/]]) {
+    const results = index.search(typo);
+    assert.ok(results.corrected, typo);
+    assert.match(results[0].food.name, pattern, typo);
+  }
+});
+
+test('a finished word does not prefix-match longer words', () => {
+  assert.ok(!index.search('water ').some(result => /^Watermelon/.test(result.food.name)));
+  assert.ok(index.search('wat').some(result => /^Watermelon/.test(result.food.name)), 'still typing: prefixes allowed');
 });

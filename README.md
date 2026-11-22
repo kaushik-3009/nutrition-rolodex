@@ -23,8 +23,8 @@ Pantry Index solves this problem for me, and I hope it does for you too. It give
 
 ## Features
 
-- **One ranked search** over 7,857 USDA foods. Everyday staples come first ("rice" → cooked rice, "eggs" → whole egg), plurals and common synonyms work (chickpeas/garbanzo, curd/yogurt, dal/lentils, ketchup/catsup), and group names no longer cause false matches.
-- **Real portions for each food.** Every usable USDA portion for that exact record — 1 medium banana, 1 slice, 1 breast, 1 cup chopped, 1 fl oz — plus grams and ounces. Spoon sizes are only derived from a plain cup (oil, milk, flour), never "1 tbsp of banana". Sensible defaults: 1 large egg, 1 tbsp olive oil, 1 slice of bread, 3 oz cooked meat.
+- **One ranked search** over 7,857 USDA foods. Everyday staples come first ("rice" → cooked rice, "eggs" → whole egg), plurals, common synonyms (chickpeas/garbanzo, curd/yogurt, dal/lentils, ketchup/catsup, coke/cola, hot dog/frankfurter) and small typos ("brocoli", "chiken") work, finished words don't prefix-match longer ones ("water" ≠ watermelon), and group names no longer cause false matches.
+- **Real portions for each food.** Every usable USDA portion for that exact record — 1 medium banana, 1 slice, 1 breast, 1 cup chopped, 1 fl oz — plus grams and ounces. Spoon sizes are only derived from a plain cup (oil, milk, flour), never "1 tbsp of banana". Sensible defaults: 1 large egg, 1 tbsp olive oil or honey, 1 slice of bread, 1 oz nuts, 3 oz cooked meat; switching units converts the amount.
 - **Daily log by meal** (breakfast, lunch, dinner, snacks), saved per date in this browser. Look back with ‹ ›, copy a previous day, edit or remove entries with undo.
 - **Day summary** of calories and protein/carbs/fat/fiber against your own goals, key vitamins and minerals as % of Daily Value, and a full Nutrition Facts label for the day or for any single portion.
 - Keyboard friendly: <kbd>/</kbd> focuses search, <kbd>Enter</kbd> opens the top result, arrow keys move through results and change amounts. Fractions like `1/2` and `1 1/2` work.

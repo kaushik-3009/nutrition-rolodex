@@ -215,3 +215,54 @@ h2 { font-family: var(--serif); font-size: 1.35rem; font-weight: 650; letter-spa
 .about p + p { margin-top: 10px; }
 .about li { margin: 8px 0; }
 .about kbd, .about code { padding: 1px 6px; background: var(--card); border: 1px solid var(--line-strong); border-radius: 5px; font-family: var(--mono); font-size: .85em; }
+
+/* ---------- walkthrough fixes ---------- */
+.topbar { padding-inline: max(16px, calc((100% - 1180px) / 2 + 16px)); }
+.kcal-pill { display: none; padding: 6px 10px; color: var(--card); background: var(--leaf); border: 0; border-radius: 99px; font-size: .82rem; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+@media (max-width: 899px) { .kcal-pill { display: inline-block; } }
+.summary.empty .macro-grid, .summary.empty .nutrient-details { display: none; }
+.summary.empty .calorie-numbers strong { font-size: 1.8rem; }
+.key-note { grid-column: 1 / -1; margin-top: 2px; color: var(--muted); font-size: .74rem; }
+.preview { margin: 14px 0 0; }
+.preview.stale { opacity: .45; }
+.portion-chips { margin-top: 14px; }
+#sheet-title:focus { outline: none; }
+.toast:not(.visible) { visibility: hidden; }
+.toast { transition: opacity .2s, transform .2s, visibility 0s linear .2s; }
+.toast.visible { transition: opacity .2s, transform .2s; }
+#result-count .link-button { font-size: inherit; }
+.nutrients > div[title] { cursor: help; }
+@media (max-width: 420px) {
+  .key-nutrients { grid-template-columns: 1fr; }
+  .macro-grid { gap: 12px 14px; }
+  .preview-macros b { font-size: .9rem; }
+  .toast { left: 12px; right: 12px; max-width: none; transform: translateY(16px); justify-content: space-between; }
+  .toast.visible { transform: none; }
+  .search input::placeholder { font-size: .95rem; }
+}
+/* Comfortable touch targets on phones and tablets. */
+@media (pointer: coarse) {
+  .icon-button { width: 44px; height: 44px; }
+  .row-remove { width: 44px; }
+  .log-row { min-height: 52px; }
+  .link-button, .top-links a { display: inline-flex; align-items: center; min-height: 44px; }
+  .segmented button { min-height: 42px; }
+  .portion-chips button, .chip, .state-chips button { min-height: 40px; }
+  .ghost-button.small { min-height: 40px; }
+  .toast button { min-height: 44px; padding: 0 16px; }
+  .day-label { min-height: 44px; }
+}
+@media (max-width: 380px) { .top-links { gap: 10px; } .kcal-pill { font-size: .76rem; padding: 5px 8px; } }
+.log-footer a { color: var(--leaf); }
+@media (max-width: 560px) {
+  .about-link { display: none !important; }
+  .topbar { gap: 6px; padding-inline: 10px; }
+  .day-nav { margin-left: auto; }
+  .day-label { min-width: 0; padding: 4px 4px; font-size: .86rem; }
+}
+@media (max-width: 380px) {
+  .topbar .brand { display: none; }
+  .day-nav { margin-left: 0; }
+  .icon-button { width: 36px; }
+}
+.preview-macros b { white-space: nowrap; }
